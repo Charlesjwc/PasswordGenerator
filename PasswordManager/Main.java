@@ -10,7 +10,7 @@ import java.utils.*;
  * 	@author	Charles Chang
  * 	@author	Christine Ryan
  * 	@author	Lei Hao
- * 	@author Yujia
+ * 	@author Yujia Yang
  * 
  * 	@since 23 October 2024
  */
