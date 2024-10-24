@@ -4,7 +4,7 @@ import java.util.*;
 
 public class FileUtil {
 	//	Filepath to info on accounts
-	public static final String ACCOUNTS = "../files/accountInfos.txt";
+	public static final String USERS = "../files/userInfos.txt";
 	
 	//	Ensure that only one fileUtil gets instanciated
 	public static FileUtil fileUtil = null;
