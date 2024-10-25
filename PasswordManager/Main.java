@@ -1,7 +1,7 @@
 //	Import utils package including User, Website, Password, etc.
 import utils.*;
 
-import java.utils.*;
+import java.util.*;
 
 /**
  * 	Main.java
@@ -32,8 +32,21 @@ public class Main {
 	
 	/**	Runs the program	*/
 	private void run() {
-		FileUtil.init();	//	Initialize FileUtil
-		FileUtil.fileUtil.readUsers(users);		//	Initialize users list
+		//	Initialize fileutil and read users
+		FileUtil.init();
+		FileUtil.fileUtil.readUsers(users);
+		
+		//	Print users
+		for (User user: users) {
+			System.out.println(user);
+		}
+		
+		//	Save file before closing
+		save();
+	}
+	
+	private void save() {
+		writeUsers(users);
 	}
 }
 
