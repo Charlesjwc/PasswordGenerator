@@ -15,6 +15,16 @@ public class FileUtil {
 	 * 	Username2 HashedPassword2
 	 * 	(empty line at end)
 	 */
+	/*	Account files contain passwords in the following form with
+	 * 	random amounts of pound symbols:
+	 * 	
+	 * 	<WEB>#####<ServiceName1>#####
+	 * 	<ACC>###<USER><Username1>###<EMAIL><Email1>###<PASS><Password1>###
+	 * 	<ACC>######<PHONE><Phone2>######<PASS><Password2>######
+	 * 	<WEB>#<ServiceName2>#
+	 *	<ACC>#<USER><Username3>#<EMAIL><Email3>#<PHONE><Phone3>#<PASS><Password3>#
+	 * 	...
+	 */
 	
 	//	Ensure that only one fileUtil gets instanciated
 	public static FileUtil fileUtil = null;
@@ -90,5 +100,110 @@ public class FileUtil {
 			System.out.println("ERROR: Failed to write to '" + USERS_PATH + "'");
 		}
 	}
+	
+	/**	Write account info of a user onto their file
+	 * 	@param User to save the info of
+	 */
+	public void writeUserInfo(User u) {
+		try {
+			//	Try and find file and create writer
+			FileWriter out = new FileWriter(u.getFilePath());
+			BufferedWriter writer = new BufferedWriter(out);
+			
+			//	Key for encryption
+			char[] key = u.getUnhashedPassword();
+			//	Index of what part of the encryption key has been reached
+			int[] keyIndex = new int[]{0};
+			
+			//	Write login info by website
+			for (Website w: u.getWebsites()) {
+				//	<WEB> to mark that this line is a website
+				writer.write(encrypt("<WEB>", key, keyIndex));
+				
+				//	Random amount of pounds between 0 and key length
+				int random = (int)(Math.random() * key.length) + 1;
+				StringBuilder junk = new StringBuilder();
+				for (int i = 0; i < random; i++) {
+					junk.append('#');
+				}
+				//	Print encrypted prefix<name>suffix
+				writer.write(encrypt(junk.toString() + "<" + w.getName() 
+							+ ">" + junk.toString(), key, keyIndex));
+				System.out.println("\n");
+				
+				//	Write each account info after website, 1 per line
+				for (Account a: w.getAccounts()) {
+					//	<ACC> to mark that this line is a website
+					writer.write(encrypt("<ACC>", key, keyIndex));
+					
+					//	Random amount of pounds between 0 and key length
+					random = (int)(Math.random() * key.length) + 1;
+					junk = new StringBuilder();
+					for (int i = 0; i < random; i++) {
+						junk.append('#');
+					}
+					
+					//	Print encrypted prefix<name>suffix
+					writer.write(encrypt(
+						  junk.toString() + "<" + a.getUsername() + ">" 
+						+ junk.toString() + "<" + a.getEmail() + ">"
+						+ junk.toString() + "<" + a.getPhone() + ">"
+						+ junk.toString() + "<" + a.getPassword() + ">"
+						+ junk.toString(), key, keyIndex));
+					System.out.println("\n");
+				}
+			}
+			
+			//	Close writer
+			out.close();
+		}
+		catch (IOException e) {
+			System.out.println("ERROR: Failed to write to '" + u.getFilePath() + "'");
+		}
+	}
+	
+	/**	Encrypts the a String using a char[] key and int[] index
+	 * 	@param	String	to encrypt
+	 * 	@param	char[]	key for encryption
+	 * 	@param	int[]	index of encryption key
+	 * 	@return	String	encrypted String
+	 */
+	private String encrypt(String str, char[] key, int[] keyIndex) {
+		//	Convert str from String to char[], then call other encrypt method
+		encrypt(str.toCharArray(), key, keyIndex);
+	}
+	
+	/**	Encrypts the a String using a char[] key and int[] index
+	 * 	@param	char[]	to encrypt (ARRAY WILL BE CHANGED)
+	 * 	@param	char[]	key for encryption
+	 * 	@param	int[]	index of encryption key
+	 * 	@return	String	encrypted String
+	 */
+	private String encrypt(char[] str, char[] key, int[] keyIndex) {
+		//	Length of key
+		int n = key.length;
+		//	Encrypt str
+		for (int i = 0; i < str.length; i++) {
+			//	Shift char
+			int shifted = str[i] + key[keyIndex[0]];
+			//	Make sure char is within bounds
+			if (shifted < 32)
+				shifted += 95;
+			if (shifted > 126)
+				shifted -= 95;
+			
+			//	Update char
+			str[i] = (char)shifted;
+			
+			//	Increment keyIndex
+			keyIndex[0] = (keyIndex[0] + 1) % key.length;
+		}
+		//	Return string
+		return new String(str);
+	}
 }
+
+
+
+
 
