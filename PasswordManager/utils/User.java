@@ -3,35 +3,49 @@ package utils;
 import java.util.*;
 
 public class User {
-	/*	Field variables	*/
-	private final String NAME;
-	private final int PASSWORD_HASH;
-	private List<Website> websites;
-	private List<Email> emails;
+	private String username;
+    private int password; 
+    private String unhashedPassword;
+    private List<Website> websites;
 	
-	/*	Constructors	*/
-	public User(String name, int passHash) {
-		this.NAME = name;
-		this.PASSWORD_HASH = passHash;
-		this.websites = new ArrayList<>();
-		this.emails = new ArrayList<>();
+	public User(String username, int password, String unhashedPassword) {
+		this.username = username;
+		this.password = password;
+		this.unhashedPassword = unhashedPassword;
+		// for the websites, actually we need to read the saved websites information from the txt file, and I have not finished this.
+		this.websites = new ArrayList<>(); 
 	}
 	
-	/**	Accessors	*/
-	public String getName() {return NAME;}
-	public int getPass() {return PASSWORD_HASH;}
-	public List<Website> getAccounts() {return websites;}
-	public List<Email> getEmails() {return emails;}
-	//	ToString returns only name
-	public String toString() {return NAME;}
-	
-	/**	File where this user's information will be stored
-	 * 	@return	filepath to files directory, then adds .txt to name
-	 */
 	public String getFilePath() {
-		return "files/" + NAME + ".txt";
-	}
+        return "./users/" + username + ".txt"; // Not defined, wait others' work
+    }
 	
+	public String getUsername() {
+        return username;
+    }
+
+	// just do the basic hash check now
+	public boolean isPassword(String enteredPassword) {
+        return Integer.toString(enteredPassword.hashCode()).equals(Integer.toString(password));
+    }
+
+	public List<Website> getWebsites() {
+        return websites;
+    }
+
+	// not finish it
+	public boolean deleteWebsite(String serviceName) {
+		return true;
+    }
+
+	public String getPassword() {
+        return unhashedPassword;
+    }
+
+	// add websites to the list
+	public void addWebsite(Website website) {
+        websites.add(website);
+    }
 	
 }
 
