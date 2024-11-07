@@ -37,16 +37,18 @@ public class Main {
 		FileUtil.fileUtil.readUsers(users);
 		
 		//	Print users
+		System.out.println("Users:");
 		for (User user: users) {
-			System.out.println(user);
+			System.out.println(user.getUsername());
 		}
+		System.out.println(users.size());
 		
 		//	Save file before closing
 		save();
 	}
 	
 	private void save() {
-		writeUsers(users);
+		FileUtil.fileUtil.writeUsers(users);
 	}
 }
 
