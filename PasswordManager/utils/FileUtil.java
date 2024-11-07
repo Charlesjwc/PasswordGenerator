@@ -54,7 +54,7 @@ public class FileUtil {
 			while (line != null) {
 				//	Each line contains a user, a space, then the hashed password
 				String username = line.substring(0, line.indexOf(" "));
-				
+				String unhashPass = "";  // todo --added this for testing
 				//	Try to read hashed passcode, throwing an error
 				//	If hashed passcode is not an int
 				int hashPass = 0;
@@ -66,7 +66,7 @@ public class FileUtil {
 				}
 				
 				//	Create new user and add to list
-				users.add(new User(username, hashPass));
+				users.add(new User(username, hashPass, unhashPass));
 				
 				//	Read next line
 				line = reader.readLine();
@@ -90,7 +90,7 @@ public class FileUtil {
 			
 			//	Print all users to file
 			for (User user: users) {
-				writer.write(user.getName() + " " + user.getPass() + "\n");
+				writer.write(user.getUsername() + " " + user.getPassword() + "\n");
 			}
 			
 			//	Close writer
@@ -109,17 +109,17 @@ public class FileUtil {
 			//	Try and find file and create writer
 			FileWriter out = new FileWriter(u.getFilePath());
 			BufferedWriter writer = new BufferedWriter(out);
-			
+
 			//	Key for encryption
 			char[] key = u.getUnhashedPassword();
 			//	Index of what part of the encryption key has been reached
 			int[] keyIndex = new int[]{0};
-			
+
 			//	Write login info by website
 			for (Website w: u.getWebsites()) {
 				//	<WEB> to mark that this line is a website
 				writer.write(encrypt("<WEB>", key, keyIndex));
-				
+
 				//	Random amount of pounds between 0 and key length
 				int random = (int)(Math.random() * key.length) + 1;
 				StringBuilder junk = new StringBuilder();
@@ -127,25 +127,25 @@ public class FileUtil {
 					junk.append('#');
 				}
 				//	Print encrypted prefix<name>suffix
-				writer.write(encrypt(junk.toString() + "<" + w.getName() 
+				writer.write(encrypt(junk.toString() + "<" + w.getName()
 							+ ">" + junk.toString(), key, keyIndex));
 				System.out.println("\n");
-				
+
 				//	Write each account info after website, 1 per line
 				for (Account a: w.getAccounts()) {
 					//	<ACC> to mark that this line is a website
 					writer.write(encrypt("<ACC>", key, keyIndex));
-					
+
 					//	Random amount of pounds between 0 and key length
 					random = (int)(Math.random() * key.length) + 1;
 					junk = new StringBuilder();
 					for (int i = 0; i < random; i++) {
 						junk.append('#');
 					}
-					
+
 					//	Print encrypted prefix<name>suffix
 					writer.write(encrypt(
-						  junk.toString() + "<" + a.getUsername() + ">" 
+						  junk.toString() + "<" + a.getUsername() + ">"
 						+ junk.toString() + "<" + a.getEmail() + ">"
 						+ junk.toString() + "<" + a.getPhone() + ">"
 						+ junk.toString() + "<" + a.getPassword() + ">"
@@ -153,7 +153,7 @@ public class FileUtil {
 					System.out.println("\n");
 				}
 			}
-			
+
 			//	Close writer
 			out.close();
 		}
@@ -161,7 +161,7 @@ public class FileUtil {
 			System.out.println("ERROR: Failed to write to '" + u.getFilePath() + "'");
 		}
 	}
-	
+
 	/**	Encrypts the a String using a char[] key and int[] index
 	 * 	@param	String	to encrypt
 	 * 	@param	char[]	key for encryption
@@ -171,6 +171,7 @@ public class FileUtil {
 	private String encrypt(String str, char[] key, int[] keyIndex) {
 		//	Convert str from String to char[], then call other encrypt method
 		encrypt(str.toCharArray(), key, keyIndex);
+		return new String(key);  // todo
 	}
 	
 	/**	Encrypts the a String using a char[] key and int[] index
