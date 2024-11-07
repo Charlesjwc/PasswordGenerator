@@ -41,11 +41,21 @@ public class User {
 	public String getPassword() {
         return unhashedPassword;
     }
+    
+    //	For writing to file
+    public int getHashedPassword() {
+        return password;
+    }
 
 	// add websites to the list
 	public void addWebsite(Website website) {
         websites.add(website);
     }
+    
+    //	toString method for testing
+    public String toString() {
+		return username + " " + password + " " + unhashedPassword;
+	}
 	
 }
 

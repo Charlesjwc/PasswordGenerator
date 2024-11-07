@@ -7,12 +7,12 @@ public class FileUtil {
 	//	Filepath to info on accounts
 	public static final String USERS_PATH = "files/userInfos.txt";
 	/*	File contains passwords in the following form:
-	 * 	The username, a single space, then the hashed password
-	 * 	There should be no spaces other than in between the username and
+	 * 	The username, a single #, then the hashed password
+	 * 	There should be no # other than in between the username and
 	 * 	the hashed password
 	 * 	
-	 * 	Username1 HashedPassword1
-	 * 	Username2 HashedPassword2
+	 * 	Username1#HashedPassword1
+	 * 	Username2#HashedPassword2
 	 * 	(empty line at end)
 	 */
 	/*	Account files contain passwords in the following form with
@@ -53,20 +53,19 @@ public class FileUtil {
 			String line = reader.readLine();
 			while (line != null) {
 				//	Each line contains a user, a space, then the hashed password
-				String username = line.substring(0, line.indexOf(" "));
-				String unhashPass = "";  // todo --added this for testing
+				String username = line.substring(0, line.indexOf("#"));
 				//	Try to read hashed passcode, throwing an error
 				//	If hashed passcode is not an int
 				int hashPass = 0;
 				try {
-					hashPass = Integer.parseInt(line.substring(line.indexOf(" ") + 1));
+					hashPass = Integer.parseInt(line.substring(line.indexOf("#") + 1));
 				}
 				catch (NumberFormatException e) {
-					System.out.println("ERROR: Unexpected whitespace in '" + USERS_PATH + "'");
+					System.out.println("ERROR: Unexpected # in '" + USERS_PATH + "'");
 				}
 				
-				//	Create new user and add to list
-				users.add(new User(username, hashPass, unhashPass));
+				//	Create new user and add to list, unhashedPass is empty for now
+				users.add(new User(username, hashPass, ""));
 				
 				//	Read next line
 				line = reader.readLine();
@@ -75,7 +74,7 @@ public class FileUtil {
 			in.close();
 		}
 		catch (IOException e) {
-			System.out.println("ERROR: Failed to read '" + USERS_PATH + "'");
+			System.out.println("ERROR: Failed to read '" + USERS_PATH + "', a new file will be created upon saving");
 		}
 	}
 	
@@ -83,6 +82,8 @@ public class FileUtil {
 	 * 	@param	List of users to rewrite
 	 */
 	public void writeUsers(List<User> users) {
+		//	Let user know that file is saving
+		System.out.println("Saving to " + users.size() + " users to file");
 		try {
 			//	Try and find file and create writer
 			FileWriter out = new FileWriter(USERS_PATH);
@@ -90,11 +91,15 @@ public class FileUtil {
 			
 			//	Print all users to file
 			for (User user: users) {
-				writer.write(user.getUsername() + " " + user.getPassword() + "\n");
+				writer.write(user.getUsername() + "#" + user.getHashedPassword() + "\n");
+				//	System.out.print(user.getUsername() + "#" + user.getHashedPassword() + "\n");
 			}
 			
 			//	Close writer
+			writer.flush();
 			out.close();
+			
+			System.out.println("Saved " + users.size() + " users to file");
 		}
 		catch (IOException e) {
 			System.out.println("ERROR: Failed to write to '" + USERS_PATH + "'");
@@ -111,7 +116,7 @@ public class FileUtil {
 			BufferedWriter writer = new BufferedWriter(out);
 
 			//	Key for encryption
-			char[] key = u.getUnhashedPassword();
+			char[] key = u.getPassword().toCharArray();
 			//	Index of what part of the encryption key has been reached
 			int[] keyIndex = new int[]{0};
 
