@@ -1,68 +1,105 @@
+package util;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 
+
 public class LoginScreen implements ActionListener{
 
-	
+	//create new account btn
 	
 	private JLabel userLabel;
 	private JLabel passwordLabel;
 	private JPanel panel;
 	private JFrame frame;
+	private JTextField userText;
+	private JPasswordField passwordText;
+	private JButton loginButton;
+	private JButton createNewAccountButton;
+	
+	private static final String USERNAME = "user";
+	private static final String PASSWORD = "password";
 	
 	public LoginScreen() {
+		
 		frame = new JFrame();
-		
-		
-		
-		
-		
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
-		panel.setLayout(new GridLayout(0, 1));
+		panel.setLayout(new GridLayout(3, 2, 10, 10));
 		
 		frame.add(panel, BorderLayout.CENTER);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Password Manager");
 		frame.pack();
 		frame.setVisible(true);
+		frame.setSize(400, 230);
 		
-		 userLabel = new JLabel("User");
-	       
-	        userLabel.setBounds(10,20,80,25);
-	        panel.add(userLabel);
+		userLabel = new JLabel("Username: ");  
+	    panel.add(userLabel);
 
 	       
-	        JTextField userText = new JTextField(20);
-	        userText.setBounds(100,20,165,25);
-	        panel.add(userText);
+	    userText = new JTextField(20);
+	    panel.add(userText);
 
 	      
-	        passwordLabel = new JLabel("Password");
-	        passwordLabel.setBounds(10,50,80,25);
-	        panel.add(passwordLabel);
+	    passwordLabel = new JLabel("Password: ");
+	    panel.add(passwordLabel);
 
 	       
-	        JPasswordField passwordText = new JPasswordField(20);
-	        passwordText.setBounds(100,50,165,25);
-	        panel.add(passwordText);
+	    passwordText = new JPasswordField(20);
+	    panel.add(passwordText);
 
-	        // Creating login button
-	        JButton loginButton = new JButton("login");
-	        loginButton.setBounds(10, 80, 80, 25);
-	        panel.add(loginButton);
+	    // Creating login button
+	    loginButton = new JButton("login");
+	    panel.add(loginButton);
+	    
+	    //creating create new account btn
+	    createNewAccountButton = new JButton("Create Account");
+		panel.add(createNewAccountButton);
 		
+		loginButton.addActionListener(this);
+		createNewAccountButton.addActionListener(this);
+	}
+	public void userClickedButton(ActionEvent e) {
+		if (e.getSource() == loginButton) {
+			String username = userText.getText();
+			char[] password = passwordText.getPassword();
+			
+			if (username.equals(USERNAME) && String.valueOf(password).equals(PASSWORD)) {
+				JOptionPane.showMessageDialog(frame, "Login successful!");
+                new LoggedInView();
+                frame.dispose();
+			}else {
+				JOptionPane.showMessageDialog(frame, "Login unsuccessful. Please check credentials or create an accoount.");
+			}
+		}
 	}
 	public static void main(String[] args) {
 		new LoginScreen();
+		
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+		if (e.getSource() == loginButton) {
+			String username = userText.getText();
+			char[] password = passwordText.getPassword();
+			
+			if (username.equals(USERNAME) && String.valueOf(password).equals(PASSWORD)) {
+				JOptionPane.showMessageDialog(frame, "Login successful!");
+                new LoggedInView();
+                frame.dispose();
+			}else {
+				JOptionPane.showMessageDialog(frame, "Login unsuccessful. Please check credentials or create an accoount.");
+			}
+		}else if (e.getSource() == createNewAccountButton) {
+			if (userText.getText().equals(USERNAME)) {
+				JOptionPane.showMessageDialog(frame, "Username already exists, please enter proper password, or a new unique username.");
 
+			}
+		}
 	}
-
 }
+	
