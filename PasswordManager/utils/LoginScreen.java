@@ -22,6 +22,7 @@ public class LoginScreen implements ActionListener{
 	
 	private static final String USERNAME = "user";
 	private static final String PASSWORD = "password";
+
 	
 	public LoginScreen() {
 		
