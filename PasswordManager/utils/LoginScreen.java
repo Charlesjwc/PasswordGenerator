@@ -69,7 +69,7 @@ public class LoginScreen implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == loginButton) {
+		if (e.getSource() == loginButton) {		//not finished. currently hard coded, need to pull from fileUtil.
 			String username = userText.getText();
 			char[] password = passwordText.getPassword();
 			
