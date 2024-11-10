@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.*;
 
 
@@ -19,13 +20,13 @@ public class LoginScreen implements ActionListener{
 	private JPasswordField passwordText;
 	private JButton loginButton;
 	private JButton createNewAccountButton;
-	
+	private List <User> userList;
 	private static final String USERNAME = "user";
 	private static final String PASSWORD = "password";
 
 	
-	public LoginScreen() {
-		
+	public LoginScreen(List <User> userList) {
+		this.userList = userList;
 		frame = new JFrame();
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
@@ -64,24 +65,8 @@ public class LoginScreen implements ActionListener{
 		loginButton.addActionListener(this);
 		createNewAccountButton.addActionListener(this);
 	}
-	public void userClickedButton(ActionEvent e) {
-		if (e.getSource() == loginButton) {
-			String username = userText.getText();
-			char[] password = passwordText.getPassword();
-			
-			if (username.equals(USERNAME) && String.valueOf(password).equals(PASSWORD)) {
-				JOptionPane.showMessageDialog(frame, "Login successful!");
-                new LoggedInView();
-                frame.dispose();
-			}else {
-				JOptionPane.showMessageDialog(frame, "Login unsuccessful. Please check credentials or create an accoount.");
-			}
-		}
-	}
-	public static void main(String[] args) {
-		new LoginScreen();
-		
-	}
+
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == loginButton) {
@@ -92,6 +77,7 @@ public class LoginScreen implements ActionListener{
 				JOptionPane.showMessageDialog(frame, "Login successful!");
                 new LoggedInView();
                 frame.dispose();
+
 			}else {
 				JOptionPane.showMessageDialog(frame, "Login unsuccessful. Please check credentials or create an accoount.");
 			}
@@ -99,8 +85,18 @@ public class LoginScreen implements ActionListener{
 			if (userText.getText().equals(USERNAME)) {
 				JOptionPane.showMessageDialog(frame, "Username already exists, please enter proper password, or a new unique username.");
 
+			}else if (userText.getText() != null && passwordText.getPassword() != null){
+				User newUser = new User(userText.getText(), passwordText.hashCode(), passwordText.getPassword().toString());
+				FileUtil.fileUtil.writeUserInfo(newUser);
+				JOptionPane.showMessageDialog(frame, "User Successfully Created.");
+
+			}else{
+				JOptionPane.showMessageDialog(frame, "An error occurred, please try again.");
+
 			}
 		}
+
 	}
+
 }
 	
