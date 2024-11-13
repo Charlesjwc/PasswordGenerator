@@ -175,6 +175,12 @@ public class FileUtil {
 	 * 	@param User to write the info of
 	 */
 	public void readUserInfo(User u) {
+		//	Only read file if user has entered unhashed password
+		if (u.getPassword() == null || u.getPassword().length() == 0) {
+			System.out.println("Could not read file for user '" + u.getUsername() + 
+						"', password not provided");
+			return;
+		}
 		try {
 			//	Try and find file and create writer
 			FileReader in = new FileReader(u.getFilePath());
@@ -291,9 +297,9 @@ public class FileUtil {
 			//	Shift char
 			int shifted = str[i] + key[keyIndex[0]];
 			//	Make sure char is within bounds
-			if (shifted < 32)
+			while (shifted < 32)
 				shifted += 95;
-			if (shifted > 126)
+			while (shifted > 126)
 				shifted -= 95;
 			
 			//	Update char
@@ -334,9 +340,9 @@ public class FileUtil {
 			//	Shift char
 			int shifted = str[i] - key[keyIndex[0]];
 			//	Make sure char is within bounds
-			if (shifted < 32)
+			while (shifted < 32)
 				shifted += 95;
-			if (shifted > 126)
+			while(shifted > 126)
 				shifted -= 95;
 			
 			//	Update char
@@ -346,6 +352,7 @@ public class FileUtil {
 			keyIndex[0] = (keyIndex[0] + 1) % key.length;
 		}
 		//	Return string
+		System.out.println("Decrypted: " + str);
 		return new String(str);
 	}
 }
