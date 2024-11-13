@@ -110,6 +110,8 @@ public class FileUtil {
 	 * 	@param User to save the info of
 	 */
 	public void writeUserInfo(User u) {
+		//	Let user know that file is saving
+		System.out.println("Saving to " + u.getUsername() + "'s info to file");
 		try {
 			//	Try and find file and create writer
 			FileWriter out = new FileWriter(u.getFilePath());
@@ -124,6 +126,8 @@ public class FileUtil {
 			for (Website w: u.getWebsites()) {
 				//	<WEB> to mark that this line is a website
 				writer.write(encrypt("<WEB>", key, keyIndex));
+				
+				System.out.println("Saving accounts for " + w.getName());
 
 				//	Random amount of pounds between 0 and key length
 				int random = (int)(Math.random() * key.length) + 1;
@@ -133,8 +137,7 @@ public class FileUtil {
 				}
 				//	Print encrypted prefix<name>suffix
 				writer.write(encrypt(junk.toString() + "<" + w.getName()
-							+ ">" + junk.toString(), key, keyIndex));
-				System.out.println("\n");
+							+ ">" + junk.toString(), key, keyIndex));	
 
 				//	Write each account info after website, 1 per line
 				for (Account a: w.getAccounts()) {
@@ -154,9 +157,10 @@ public class FileUtil {
 						+ junk.toString() + "<" + a.getEmail() + ">"
 						+ junk.toString() + "<" + a.getPhone() + ">"
 						+ junk.toString() + "<" + a.getPassword() + ">"
-						+ junk.toString(), key, keyIndex));
-					System.out.println("\n");
+						+ junk.toString() + "\n", key, keyIndex));
 				}
+				
+				writer.flush();
 			}
 
 			//	Close writer
@@ -164,6 +168,98 @@ public class FileUtil {
 		}
 		catch (IOException e) {
 			System.out.println("ERROR: Failed to write to '" + u.getFilePath() + "'");
+		}
+	}
+	
+	/**	Read account info of a user onto their file
+	 * 	@param User to write the info of
+	 */
+	public void readUserInfo(User u) {
+		try {
+			//	Try and find file and create writer
+			FileReader in = new FileReader(u.getFilePath());
+			BufferedReader reader = new BufferedReader(in);
+
+			//	Key for encryption
+			char[] key = u.getPassword().toCharArray();
+			//	Index of what part of the encryption key has been reached
+			int[] keyIndex = new int[]{0};
+			
+			// Keep reading until no lines left
+			String line = decrypt(reader.readLine(), key, keyIndex);
+			Website currentSite = null;
+			while (line != null) {
+				//	Type of info on line
+				String type = line.substring(0, 5);
+				//	If website
+				if (type.equals("<WEB>")) {
+					//	Remove prefix
+					line = line.substring(5);
+					currentSite = new Website(line.substring(
+							line.indexOf('<') + 1, line.indexOf('>')));
+					u.addWebsite(currentSite);
+				}
+				//	If account
+				else if (line.equals("<ACC>")) {
+					//	Remove prefix
+					line = line.substring(5);
+					
+					//	Account info
+					String username = "";
+					String email = "";
+					String phone = "";
+					String pass = "";
+					
+					//	Check for username
+					if (line.substring(line.indexOf('<') + 1,
+								line.indexOf('>')).equals("USER")) {
+						line = line.substring(line.indexOf('>'));
+						username = line.substring(line.indexOf('<') + 1,
+													line.indexOf('>'));
+						line = line.substring(line.indexOf('>') + 1);
+					}
+					//	Check for email
+					if (line.substring(line.indexOf('<') + 1,
+								line.indexOf('>')).equals("EMAIL")) {
+						line = line.substring(line.indexOf('>'));
+						email = line.substring(line.indexOf('<') + 1,
+													line.indexOf('>'));
+						line = line.substring(line.indexOf('>') + 1);
+					}
+					//	Check for phone
+					if (line.substring(line.indexOf('<') + 1,
+								line.indexOf('>')).equals("PHONE")) {
+						line = line.substring(line.indexOf('>'));
+						phone = line.substring(line.indexOf('<') + 1,
+													line.indexOf('>'));
+						line = line.substring(line.indexOf('>') + 1);
+					}
+					//	Password
+					//	If <PASS> not found, there was an error
+					if (!line.substring(line.indexOf('<') + 1,
+								line.indexOf('>')).equals("PASS")) {
+						System.out.println("ERROR: Password not found for user "
+							+ u.getUsername() + " on account for " + currentSite.getName());
+					}
+					line = line.substring(line.indexOf('>') + 1);
+					pass = line.substring(line.indexOf('<') + 1, line.indexOf('>'));
+					
+					//	Add account to website
+					currentSite.addAccount(new Account(currentSite, username, email, phone, pass));
+				}
+				//	If neither, there was an error
+				else {
+					System.out.println("Error with reading file '" + 
+						u.getFilePath() + "'. Password may be incorrect.");
+					return;
+				}
+				
+				//	Read next line
+				line = decrypt(reader.readLine(), key, keyIndex);
+			}
+		}
+		catch (IOException e) {
+			System.out.println("ERROR: Failed to read from '" + u.getFilePath() + "'");
 		}
 	}
 
@@ -174,9 +270,11 @@ public class FileUtil {
 	 * 	@return	String	encrypted String
 	 */
 	private String encrypt(String str, char[] key, int[] keyIndex) {
+		//	Make sure string isn't empty or null
+		if (str == null || str.length() == 0)
+			return str;
 		//	Convert str from String to char[], then call other encrypt method
-		encrypt(str.toCharArray(), key, keyIndex);
-		return new String(key);  // todo
+		return encrypt(str.toCharArray(), key, keyIndex);
 	}
 	
 	/**	Encrypts the a String using a char[] key and int[] index
@@ -192,6 +290,49 @@ public class FileUtil {
 		for (int i = 0; i < str.length; i++) {
 			//	Shift char
 			int shifted = str[i] + key[keyIndex[0]];
+			//	Make sure char is within bounds
+			if (shifted < 32)
+				shifted += 95;
+			if (shifted > 126)
+				shifted -= 95;
+			
+			//	Update char
+			str[i] = (char)shifted;
+			
+			//	Increment keyIndex
+			keyIndex[0] = (keyIndex[0] + 1) % key.length;
+		}
+		//	Return string
+		return new String(str);
+	}
+	
+	/**	Decrypts the a String using a char[] key and int[] index
+	 * 	@param	String	to decrypt
+	 * 	@param	char[]	key for encryption
+	 * 	@param	int[]	index of encryption key
+	 * 	@return	String	decrypted String
+	 */
+	private String decrypt(String str, char[] key, int[] keyIndex) {
+		//	Make sure string isn't empty or null
+		if (str == null || str.length() == 0)
+			return str;
+		//	Convert str from String to char[], then call other encrypt method
+		return decrypt(str.toCharArray(), key, keyIndex);
+	}
+	
+	/**	Decrypts the a String using a char[] key and int[] index
+	 * 	@param	char[]	to decrypt (ARRAY WILL BE CHANGED)
+	 * 	@param	char[]	key for encryption
+	 * 	@param	int[]	index of encryption key
+	 * 	@return	String	decrypted String
+	 */
+	private String decrypt(char[] str, char[] key, int[] keyIndex) {
+		//	Length of key
+		int n = key.length;
+		//	Encrypt str
+		for (int i = 0; i < str.length; i++) {
+			//	Shift char
+			int shifted = str[i] - key[keyIndex[0]];
 			//	Make sure char is within bounds
 			if (shifted < 32)
 				shifted += 95;

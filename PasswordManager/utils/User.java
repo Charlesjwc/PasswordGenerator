@@ -17,16 +17,19 @@ public class User {
 	}
 	
 	public String getFilePath() {
-        return "./users/" + username + ".txt"; // Not defined, wait others' work
+        return "files/" + username + ".txt"; // Not defined, wait others' work
     }
 	
 	public String getUsername() {
         return username;
     }
 
-	// just do the basic hash check now
+	// just do the basic hash check now, and set password to entered password if correct
 	public boolean isPassword(String enteredPassword) {
-        return Integer.toString(enteredPassword.hashCode()).equals(Integer.toString(password));
+        boolean result = Integer.toString(enteredPassword.hashCode()).equals(Integer.toString(password));
+        if (result)
+			this.unhashedPassword = enteredPassword;
+		return result;
     }
 
 	public List<Website> getWebsites() {
