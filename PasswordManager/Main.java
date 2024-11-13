@@ -35,17 +35,20 @@ public class Main {
 		//	Initialize fileutil and read users
 		FileUtil.init();
 		FileUtil.fileUtil.readUsers(users);
+		for (User u: users)
+			FileUtil.fileUtil.readUserInfo(u);
 		
 		//	addTestUsers();
 		
 		//	Print users
 		System.out.println("Users:");
 		for (User user: users) {
+			saveUser(user);
 			System.out.println(user.getUsername());
-			//	saveUser(user);
 			for (Website w: user.getWebsites())
 				for (Account a: w.getAccounts())
-					System.out.print(a);
+					System.out.println(a);
+			
 		}
 		System.out.println(users.size());
 		
