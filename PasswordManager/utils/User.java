@@ -11,6 +11,8 @@ public class User {
 	private static Set<String> usernames = new HashSet<>(); // track all the usernames
 	private static List<User> allUsers = new ArrayList<>(); // track all the users
 
+	private Generator generator = new Generator();
+
 	
 	public User(String username, int password, String unhashedPassword) throws Exception {
 		if (usernames.contains(username)) {
@@ -79,8 +81,8 @@ public class User {
 
 	// Manually set a password with validation
     public boolean changePassword(String newPassword) {
-        if (!isValidPassword(newPassword)) {
-            System.out.println("Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.");
+        if (!generator.isValidPassword(newPassword)) {
+            System.out.println("Password may contain chars which don't allowed.");
             return false;
         }
         this.unhashedPassword = newPassword;
@@ -89,10 +91,6 @@ public class User {
         return true;
     }
 
-	// not finish it
-	private boolean isValidPassword(String password) {
-		return true;
-	}
 
 
 }
