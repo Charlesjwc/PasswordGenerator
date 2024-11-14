@@ -30,7 +30,7 @@ public class Generator {
         }
     }
 
-    public void autoGenerator() {
+    public String autoGenerator() {
         final int PASSWORD_LEN = 16;
         Random random = new Random();
         StringBuilder password = new StringBuilder();
@@ -46,7 +46,8 @@ public class Generator {
         for (int i = 4; i < PASSWORD_LEN; i++) {
             password.append(allChars.charAt(random.nextInt(allChars.length())));
         }
-        System.out.println(password.toString());
+//        System.out.println(password.toString());
+        return password.toString();
     }
 
     public void manualGenerator() {
@@ -63,6 +64,7 @@ public class Generator {
                 System.out.println("Your password is not valid. Please try again.");
             }
         }
+        return password;
     }
 
     public boolean isValidPassword(String password) {
