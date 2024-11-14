@@ -7,13 +7,20 @@ public class User {
     private int password; 
     private String unhashedPassword;
     private List<Website> websites;
+
+	private static Set<String> usernames = new HashSet<>(); // track all the usernames
 	
-	public User(String username, int password, String unhashedPassword) {
+	public User(String username, int password, String unhashedPassword) throws Exception {
+		if (usernames.contains(username)) {
+            throw new Exception("Username already exists. Please use a different name.");
+        }
+
 		this.username = username;
 		this.password = password;
 		this.unhashedPassword = unhashedPassword;
-		// for the websites, actually we need to read the saved websites information from the txt file, and I have not finished this.
 		this.websites = new ArrayList<>(); 
+
+		usernames.add(username);
 	}
 	
 	public String getFilePath() {
@@ -33,9 +40,9 @@ public class User {
         return websites;
     }
 
-	// not finish it
+	
 	public boolean deleteWebsite(String serviceName) {
-		return true;
+		return websites.removeIf(website -> website.getName().equals(serviceName));
     }
 
 	public String getPassword() {
@@ -45,6 +52,11 @@ public class User {
 	// add websites to the list
 	public void addWebsite(Website website) {
         websites.add(website);
+    }
+
+
+	public static void removeUsername(String username) {
+        usernames.remove(username);
     }
 	
 }

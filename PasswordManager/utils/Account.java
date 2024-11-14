@@ -7,6 +7,8 @@ public class Account {
     private String phone;
     private String password;
 
+    private Generator generator = new Generator();
+
 	public Account(Website website, String username, String email, String phone, String password) {
 		this.website = website;
 		this.username = username;
@@ -27,9 +29,13 @@ public class Account {
         System.out.println("Password: " + password);
     }
 
-	// not finish it
-	public void setNewPassword() {
-        // Call makeNewPassword() and set it as password
+	public void setAutoPassword() {
+        this.password = generator.autoGenerator();
+
+    }
+
+    public void setManualPassword(){
+        this.password = generator.manualGenerator();
     }
 
     public void setNewUserName(String newUserName) {

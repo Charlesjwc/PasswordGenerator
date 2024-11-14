@@ -8,7 +8,6 @@ public class Website {
 
 	public Website(String serviceName) {
 		this.serviceName = serviceName;
-		// for the accounts, actually we need to read the saved accounts information from the txt file, and I have not finished this.
 		this.accounts = new ArrayList<>();
 	}
 
@@ -25,9 +24,9 @@ public class Website {
         System.out.println("Website name is " + serviceName);
     }
 
-	// not finish it
+
 	public boolean deleteAccount(String username) {
-        return true;
+        return accounts.removeIf(account -> account.getUsername().equals(username));
     }
 
 	// add accounts to the list
