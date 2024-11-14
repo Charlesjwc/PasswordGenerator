@@ -54,6 +54,7 @@ public class User {
 	public String getPassword() {
         return unhashedPassword;
     }
+
     
     //	For writing to file
     public int getHashedPassword() {
@@ -75,6 +76,23 @@ public class User {
         }
         return false; 
     }
+
+	// Manually set a password with validation
+    public boolean changePassword(String newPassword) {
+        if (!isValidPassword(newPassword)) {
+            System.out.println("Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.");
+            return false;
+        }
+        this.unhashedPassword = newPassword;
+        this.password = newPassword.hashCode();
+        System.out.println("User password successfully changed.");
+        return true;
+    }
+
+	// not finish it
+	private boolean isValidPassword(String password) {
+		return true;
+	}
 
 
 }
