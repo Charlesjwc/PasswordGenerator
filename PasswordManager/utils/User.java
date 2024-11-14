@@ -9,6 +9,8 @@ public class User {
     private List<Website> websites;
 
 	private static Set<String> usernames = new HashSet<>(); // track all the usernames
+	private static List<User> allUsers = new ArrayList<>(); // track all the users
+
 	
 	public User(String username, int password, String unhashedPassword) throws Exception {
 		if (usernames.contains(username)) {
@@ -21,6 +23,7 @@ public class User {
 		this.websites = new ArrayList<>(); 
 
 		usernames.add(username);
+		allUsers.add(this);
 	}
 	
 	public String getFilePath() {
@@ -62,9 +65,17 @@ public class User {
         websites.add(website);
     }
 
-	public static void removeUsername(String username) {
-        usernames.remove(username);
+	public static boolean deleteUser(String username) {
+        for (User user : allUsers) {
+            if (user.getUsername().equals(username)) {
+                allUsers.remove(user); 
+                usernames.remove(username); 
+                return true; 
+            }
+        }
+        return false; 
     }
-	
+
+
 }
 
