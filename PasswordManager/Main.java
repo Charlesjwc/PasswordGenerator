@@ -23,22 +23,22 @@ public class Main {
 	public Main() {
 		users = new ArrayList<>();
 	}
-	
-	public static void main (String[] args) {
+
+	public static void main (String[] args) throws Exception {
 		//	Create and run instance
 		Main m = new Main();
 		m.run();
 	}
 	
 	/**	Runs the program	*/
-	private void run() {
+	private void run() throws Exception {
 		//	Initialize fileutil and read users
 		FileUtil.init();
 		FileUtil.fileUtil.readUsers(users);
 		for (User u: users)
 			FileUtil.fileUtil.readUserInfo(u);
 		
-		//	addTestUsers();
+		addTestUsers();
 		
 		//	Print users
 		System.out.println("Users:");
@@ -64,7 +64,7 @@ public class Main {
 		FileUtil.fileUtil.writeUserInfo(u);
 	}
 	
-	private void addTestUsers() {
+	private void addTestUsers() throws Exception {
 		//	Add users
 		User charles = new User("Charles", "Password123456".hashCode(), "Password123456");
 		users.add(charles);
@@ -74,7 +74,8 @@ public class Main {
 		users.add(yujia);
 		User lei = new User("Lei", "null".hashCode(), "null");
 		users.add(lei);
-		
+		System.out.println(users.toString());  // todo
+
 		Website w1 = new Website("Canvas");
 		charles.addWebsite(w1);
 		w1.addAccount(new Account(w1, "charles321", "myemail@gmail.com", "", 

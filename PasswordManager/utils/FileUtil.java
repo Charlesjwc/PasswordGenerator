@@ -43,7 +43,7 @@ public class FileUtil {
 	/**	Read user info from the file
 	 * 	@param	Empty list of users to add to
 	 */
-	public void readUsers(List<User> users) {
+	public void readUsers(List<User> users) throws Exception {
 		try {
 			//	Try to find file and create reader
 			FileReader in = new FileReader(USERS_PATH);
