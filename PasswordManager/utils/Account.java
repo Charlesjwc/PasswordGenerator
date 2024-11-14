@@ -57,6 +57,9 @@ public class Account {
     public String getPassword() {
         return password;
     }
-		
+	
+	public String toString() {
+		return username + " " + email + " " + phone + " " + password;
+	}	
 }
 
