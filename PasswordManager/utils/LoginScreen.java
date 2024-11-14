@@ -65,16 +65,30 @@ public class LoginScreen implements ActionListener{
 		loginButton.addActionListener(this);
 		createNewAccountButton.addActionListener(this);
 	}
+public boolean checkUser(List<User> userList){
+		String userName = userText.getText();
+		String password = new String(passwordText.getPassword());
+		for(User user : userList){
+			if(user.getUsername().equals(userName) && user.getPassword().equals(password)){
+				return true;
+			}
+		}
 
+		return false;
+
+}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == loginButton) {		//not finished. currently hard coded, need to pull from fileUtil.
+		if (e.getSource() == loginButton) {
 			String username = userText.getText();
 			char[] password = passwordText.getPassword();
 			
-			if (username.equals(USERNAME) && String.valueOf(password).equals(PASSWORD)) {
+			if (checkUser(userList)) {
 				JOptionPane.showMessageDialog(frame, "Login successful!");
+				//set userpassword
+
+
                 new LoggedInView();
                 frame.dispose();
 
