@@ -61,6 +61,10 @@ public class User {
 	public void addWebsite(Website website) {
         websites.add(website);
     }
+
+	public static void removeUsername(String username) {
+        usernames.remove(username);
+    }
 	
 }
 
