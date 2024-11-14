@@ -50,7 +50,7 @@ public class Generator {
         return password.toString();
     }
 
-    public void manualGenerator() {
+    public String manualGenerator() {
         Scanner scanner = new Scanner(System.in);
         String password;
 
