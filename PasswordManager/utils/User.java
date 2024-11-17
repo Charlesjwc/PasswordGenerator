@@ -27,6 +27,20 @@ public class User {
 		usernames.add(username);
 		allUsers.add(this);
 	}
+
+    public User(String username, String unhashedPassword) throws Exception {
+		if (usernames.contains(username)) {
+            throw new Exception("Username already exists. Please use a different name.");
+        }
+
+		this.username = username;
+		this.unhashedPassword = unhashedPassword;
+        this.password = unhashedPassword.hashCode();
+		this.websites = new ArrayList<>(); 
+
+		usernames.add(username);
+		allUsers.add(this);
+	}
 	
 	public String getFilePath() {
         return "files/" + username + ".txt"; // Not defined, wait others' work
