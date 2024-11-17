@@ -1,4 +1,5 @@
 package utils;
+import utils.*;
 
 import java.util.*;
 import java.io.*;
@@ -137,7 +138,7 @@ public class FileUtil {
 				}
 				//	Print encrypted prefix<name>suffix
 				writer.write(encrypt(junk.toString() + "<" + w.getName()
-							+ ">" + junk.toString(), key, keyIndex));	
+							+ ">" + junk.toString(), key, keyIndex) + "\n");	
 
 				//	Write each account info after website, 1 per line
 				for (Account a: w.getAccounts()) {
@@ -153,11 +154,11 @@ public class FileUtil {
 
 					//	Print encrypted prefix<name>suffix
 					writer.write(encrypt(
-						  junk.toString() + "<" + a.getUsername() + ">"
-						+ junk.toString() + "<" + a.getEmail() + ">"
-						+ junk.toString() + "<" + a.getPhone() + ">"
-						+ junk.toString() + "<" + a.getPassword() + ">"
-						+ junk.toString() + "\n", key, keyIndex));
+						  junk.toString() + "<USER><" + a.getUsername() + ">"
+						+ junk.toString() + "<EMAIL><" + a.getEmail() + ">"
+						+ junk.toString() + "<PHONE><" + a.getPhone() + ">"
+						+ junk.toString() + "<PASS><" + a.getPassword() + ">"
+						+ junk.toString(), key, keyIndex) + "\n");
 				}
 				
 				writer.flush();
@@ -219,7 +220,7 @@ public class FileUtil {
 					//	Check for username
 					if (line.substring(line.indexOf('<') + 1,
 								line.indexOf('>')).equals("USER")) {
-						line = line.substring(line.indexOf('>'));
+						line = line.substring(line.indexOf('>') + 1);
 						username = line.substring(line.indexOf('<') + 1,
 													line.indexOf('>'));
 						line = line.substring(line.indexOf('>') + 1);
@@ -227,7 +228,7 @@ public class FileUtil {
 					//	Check for email
 					if (line.substring(line.indexOf('<') + 1,
 								line.indexOf('>')).equals("EMAIL")) {
-						line = line.substring(line.indexOf('>'));
+						line = line.substring(line.indexOf('>') + 1);
 						email = line.substring(line.indexOf('<') + 1,
 													line.indexOf('>'));
 						line = line.substring(line.indexOf('>') + 1);
@@ -235,7 +236,7 @@ public class FileUtil {
 					//	Check for phone
 					if (line.substring(line.indexOf('<') + 1,
 								line.indexOf('>')).equals("PHONE")) {
-						line = line.substring(line.indexOf('>'));
+						line = line.substring(line.indexOf('>') + 1);
 						phone = line.substring(line.indexOf('<') + 1,
 													line.indexOf('>'));
 						line = line.substring(line.indexOf('>') + 1);
@@ -275,7 +276,7 @@ public class FileUtil {
 	 * 	@param	int[]	index of encryption key
 	 * 	@return	String	encrypted String
 	 */
-	private String encrypt(String str, char[] key, int[] keyIndex) {
+	public String encrypt(String str, char[] key, int[] keyIndex) {
 		//	Make sure string isn't empty or null
 		if (str == null || str.length() == 0)
 			return str;
@@ -289,7 +290,7 @@ public class FileUtil {
 	 * 	@param	int[]	index of encryption key
 	 * 	@return	String	encrypted String
 	 */
-	private String encrypt(char[] str, char[] key, int[] keyIndex) {
+	public String encrypt(char[] str, char[] key, int[] keyIndex) {
 		//	Length of key
 		int n = key.length;
 		//	Encrypt str
@@ -318,7 +319,7 @@ public class FileUtil {
 	 * 	@param	int[]	index of encryption key
 	 * 	@return	String	decrypted String
 	 */
-	private String decrypt(String str, char[] key, int[] keyIndex) {
+	public String decrypt(String str, char[] key, int[] keyIndex) {
 		//	Make sure string isn't empty or null
 		if (str == null || str.length() == 0)
 			return str;
@@ -332,7 +333,7 @@ public class FileUtil {
 	 * 	@param	int[]	index of encryption key
 	 * 	@return	String	decrypted String
 	 */
-	private String decrypt(char[] str, char[] key, int[] keyIndex) {
+	public String decrypt(char[] str, char[] key, int[] keyIndex) {
 		//	Length of key
 		int n = key.length;
 		//	Encrypt str
@@ -342,7 +343,7 @@ public class FileUtil {
 			//	Make sure char is within bounds
 			while (shifted < 32)
 				shifted += 95;
-			while(shifted > 126)
+			while(shifted > 125)
 				shifted -= 95;
 			
 			//	Update char
@@ -351,8 +352,6 @@ public class FileUtil {
 			//	Increment keyIndex
 			keyIndex[0] = (keyIndex[0] + 1) % key.length;
 		}
-		//	Return string
-		System.out.println("Decrypted: " + str);
 		return new String(str);
 	}
 }

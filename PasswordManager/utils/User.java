@@ -2,7 +2,13 @@ package utils;
 
 import java.util.*;
 
+/**	User class for password manager. By default only has username and password.
+ * 	unhashedPassword is blank until user enters a password that matches the
+ * 	hashed password and logs in.
+ * 	Keeps track of Websites and accounts
+ */
 public class User {
+	/*	Field variables	*/
 	private String username;
     private int password; 
     private String unhashedPassword;
@@ -13,7 +19,7 @@ public class User {
 
 	private Generator generator = new Generator();
 
-	
+	/*	Constructor	*/
 	public User(String username, int password, String unhashedPassword) throws Exception {
 		if (usernames.contains(username)) {
             throw new Exception("Username already exists. Please use a different name.");
@@ -42,46 +48,58 @@ public class User {
 		allUsers.add(this);
 	}
 	
+	/**	Gets the filepath where this user's info will be stored	*/
 	public String getFilePath() {
-        return "files/" + username + ".txt"; // Not defined, wait others' work
+        return "files/" + username + ".txt";
     }
 	
+	/*	Accessor methods	*/
 	public String getUsername() {
         return username;
     }
+    public String getPassword() {
+        return unhashedPassword;
+    }
+    public List<Website> getWebsites() {
+        return websites;
+    }
+    public int getHashedPassword() {
+        return password;
+    }
 
-	// just do the basic hash check now, and set password to entered password if correct
+	/**	Checks whether the enteredPassword is the right password.
+	 * 	Hashes entered string, and may provide false positives if two 
+	 * 	Strings hash to the same value
+	 * 	Sets password if password might be valid
+	 * 	@param	enteredPassword to check
+	 * 	@return true if password matches hashed, false otherwise
+	 */
 	public boolean isPassword(String enteredPassword) {
         boolean result = Integer.toString(enteredPassword.hashCode()).equals(Integer.toString(password));
         if (result)
 			this.unhashedPassword = enteredPassword;
 		return result;
     }
-
-	public List<Website> getWebsites() {
-        return websites;
-    }
-
 	
+	/**	Removes a website from the list
+	 * 	@param	serviceName of website to remove
+	 * 	@return true if Website deleted, false otherwise
+	 */
 	public boolean deleteWebsite(String serviceName) {
 		return websites.removeIf(website -> website.getName().equals(serviceName));
     }
 
-	public String getPassword() {
-        return unhashedPassword;
-    }
-
-    
-    //	For writing to file
-    public int getHashedPassword() {
-        return password;
-    }
-
-	// add websites to the list
+	/**	Adds a website to list
+	 * 	@param	website to add
+	 */
 	public void addWebsite(Website website) {
         websites.add(website);
     }
-
+	
+	/**	Deletes a user from the list
+	 * 	@param	username of user to delete
+	 * 	@return	true if user deleted, false otherwise
+	 */
 	public static boolean deleteUser(String username) {
         for (User user : allUsers) {
             if (user.getUsername().equals(username)) {
@@ -93,7 +111,9 @@ public class User {
         return false; 
     }
 
-	// Manually set a password with validation
+	/**	Change password
+	 * 	@param	newPassword to change to
+	 */
     public boolean changePassword(String newPassword) {
         if (!generator.isValidPassword(newPassword)) {
             System.out.println("Password may contain chars which don't allowed.");
