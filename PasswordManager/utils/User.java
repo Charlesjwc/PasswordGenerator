@@ -22,7 +22,7 @@ public class User {
 	/*	Constructor	*/
 	public User(String username, int password, String unhashedPassword) throws Exception {
 		if (usernames.contains(username)) {
-            throw new Exception("Username already exists. Please use a different name.");
+            throw new Exception("Username '" + username + "' already exists. Please use a different name.");
         }
 
 		this.username = username;
