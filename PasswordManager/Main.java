@@ -156,10 +156,12 @@ public class Main {
 	/**	Runs the program	*/
 	private void run() throws Exception {
 		// Manually add an user and website accounts.
-		addTestUsers();
-
+		//	addTestUsers();
+		
+		/**	DONT SAVE USERS BEFORE READING FILE
 		// Save the user and website accounts to the file
 		saveAllUsers(users);
+		*/
 
 		//	Initialize fileutil and read users
 		System.out.println("Initializing FileUtil and reading existing users.");
@@ -208,8 +210,11 @@ public class Main {
 					System.out.println();
 			}
 		}
+		
+		saveAllUsers(users);
 	}
-
+	
+	//	Dont need this method, use Prompt getInt() instead
 	private int getIntInput(String s) {
 		System.out.print(s);
 		while (!scanner.hasNextInt()) {
@@ -219,6 +224,7 @@ public class Main {
 		return scanner.nextInt();
 	}
 
+	//	Dont need this method, use Prompt getString() instead
 	private String getStringInput(String s) {
 		System.out.print(s);
 		return scanner.next();
@@ -231,7 +237,7 @@ public class Main {
 //		System.out.println("3. Delete a user");  todo, seems like we don't have a delete user feature
 		System.out.println("3. Exit");
 
-		int choice = getIntInput("Enter your choice: ");
+		int choice = Prompt.getInt("Enter your choice: ");
 		switch (choice) {
 			case 1:
 				System.out.println();
@@ -256,7 +262,7 @@ public class Main {
 		int attempts = 0;
 
 		while (attempts < MAX_ATTEMPTS) {
-			String username = getStringInput("Username: ");
+			String username = Prompt.getString("Username: ");
 
 			if (username.equalsIgnoreCase("exit")) {
 				System.out.println("Exiting login. Returning to main menu.");
@@ -266,7 +272,7 @@ public class Main {
 
 			String password = getStringInput("Password: ");
 			for (User user: users) {
-				if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+				if (user.getUsername().equals(username) && user.isPassword(password)) {
 					System.out.println("Login successful.");
 					return user;
 				}
