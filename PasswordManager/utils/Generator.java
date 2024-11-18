@@ -68,7 +68,7 @@ public class Generator {
 	 * 	@param	password to check
 	 * 	@return true if password is valid, false otherwise
 	 */
-    public boolean isValidPassword(String password) {
+    public static boolean isValidPassword(String password) {
         String allowedChars = "[a-zA-Z0-9 _\\-!@#$%^&*()]*";
         return password.matches(allowedChars);
     }
