@@ -4,110 +4,16 @@ import utils.*;
 import java.util.*;
 import java.io.*;
 
-public class FileUtil {
-	//	Filepath to info on accounts
-	public static final String USERS_PATH = "files/userInfos.txt";
-	
-	public static final int TRASH_MAX = 10;
-	
-	/*	File contains passwords in the following form:
-	 * 	The username, a single #, then the hashed password
-	 * 	There should be no # other than in between the username and
-	 * 	the hashed password
-	 * 	
-	 * 	Username1#HashedPassword1
-	 * 	Username2#HashedPassword2
-	 * 	(empty line at end)
-	 */
-	/*	Account files contain passwords in the following form with
-	 * 	random amounts of pound symbols:
-	 * 	
-	 * 	<WEB>#####<ServiceName1>#####
-	 * 	<ACC>###<USER><Username1>###<EMAIL><Email1>###<PASS><Password1>###
-	 * 	<ACC>######<PHONE><Phone2>######<PASS><Password2>######
-	 * 	<WEB>#<ServiceName2>#
-	 *	<ACC>#<USER><Username3>#<EMAIL><Email3>#<PHONE><Phone3>#<PASS><Password3>#
-	 * 	...
-	 */
-	
-	//	Ensure that only one fileUtil gets instanciated
-	public static FileUtil fileUtil = null;
-	
+public class SecureFileUtil extends FileUtil{
 	//	Private constructor to prevent duplicates
-	private FileUtil() {}
+	private SecureFileUtil() {}
 	
 	/**	Initializes singleton object if it doesn't already exist	*/
 	public static void init() {
 		if (fileUtil == null)
-			fileUtil = new FileUtil();
+			fileUtil = new SecureFileUtil();
 		else
-			System.out.println("FileUtil already exists");
-	}
-	
-	/**	Read user info from the file
-	 * 	@param	Empty list of users to add to
-	 */
-	public void readUsers(List<User> users) throws Exception {
-		try {
-			//	Try to find file and create reader
-			FileReader in = new FileReader(USERS_PATH);
-			BufferedReader reader = new BufferedReader(in);
-			
-			//	Read the file, and add to users
-			String line = reader.readLine();
-			while (line != null) {
-				//	Each line contains a user, a space, then the hashed password
-				String username = line.substring(0, line.indexOf("#"));
-				//	Try to read hashed passcode, throwing an error
-				//	If hashed passcode is not an int
-				int hashPass = 0;
-				try {
-					hashPass = Integer.parseInt(line.substring(line.indexOf("#") + 1));
-				}
-				catch (NumberFormatException e) {
-					System.out.println("ERROR: Unexpected # in '" + USERS_PATH + "'");
-				}
-				
-				//	Create new user and add to list, unhashedPass is empty for now
-				users.add(new User(username, hashPass, ""));
-				
-				//	Read next line
-				line = reader.readLine();
-			}
-			//	Close reader
-			in.close();
-		}
-		catch (IOException e) {
-			System.out.println("ERROR: Failed to read '" + USERS_PATH + "', a new file will be created upon saving");
-		}
-	}
-	
-	/**	Write user info onto the file
-	 * 	@param	List of users to rewrite
-	 */
-	public void writeUsers(List<User> users) {
-		//	Let user know that file is saving
-		System.out.println("Saving to " + users.size() + " users to file");
-		try {
-			//	Try and find file and create writer
-			FileWriter out = new FileWriter(USERS_PATH);
-			BufferedWriter writer = new BufferedWriter(out);
-			
-			//	Print all users to file
-			for (User user: users) {
-				writer.write(user.getUsername() + "#" + user.getHashedPassword() + "\n");
-				//	System.out.print(user.getUsername() + "#" + user.getHashedPassword() + "\n");
-			}
-			
-			//	Close writer
-			writer.flush();
-			out.close();
-			
-			System.out.println("Saved " + users.size() + " users to file");
-		}
-		catch (IOException e) {
-			System.out.println("ERROR: Failed to write to '" + USERS_PATH + "'");
-		}
+			System.out.println("SecureFileUtil already exists");
 	}
 	
 	/**	Write account info of a user onto their file
@@ -121,42 +27,47 @@ public class FileUtil {
 			FileWriter out = new FileWriter(u.getFilePath());
 			BufferedWriter writer = new BufferedWriter(out);
 
+			//	Key for encryption
+			char[] key = u.getPassword().toCharArray();
+			//	Index of what part of the encryption key has been reached
+			int[] keyIndex = new int[]{0};
+
 			//	Write login info by website
 			for (Website w: u.getWebsites()) {
 				//	<WEB> to mark that this line is a website
-				writer.write("<WEB>");
+				writer.write(Encryptor.encrypt("<WEB>", key, keyIndex));
 				
 				System.out.println("Saving accounts for " + w.getName());
 
 				//	Random amount of pounds between 0 and key length
-				int random = (int)(Math.random() * TRASH_MAX) + 1;
+				int random = (int)(Math.random() * key.length) + 1;
 				StringBuilder junk = new StringBuilder();
 				for (int i = 0; i < random; i++) {
 					junk.append('#');
 				}
-				//	Print prefix<name>suffix
-				writer.write(junk.toString() + "<" + w.getName() 
-									+ ">" + junk.toString() + "\n");	
+				//	Print encrypted prefix<name>suffix
+				writer.write(Encryptor.encrypt(junk.toString() + "<" + w.getName()
+							+ ">" + junk.toString(), key, keyIndex) + "\n");	
 
 				//	Write each account info after website, 1 per line
 				for (Account a: w.getAccounts()) {
 					//	<ACC> to mark that this line is a website
-					writer.write("<ACC>");
+					writer.write(Encryptor.encrypt("<ACC>", key, keyIndex));
 
 					//	Random amount of pounds between 0 and key length
-					random = (int)(Math.random() * TRASH_MAX) + 1;
+					random = (int)(Math.random() * key.length) + 1;
 					junk = new StringBuilder();
 					for (int i = 0; i < random; i++) {
 						junk.append('#');
 					}
 
-					//	Print prefix<name>suffix
-					writer.write(
+					//	Print encrypted prefix<name>suffix
+					writer.write(Encryptor.encrypt(
 						  junk.toString() + "<USER><" + a.getUsername() + ">"
 						+ junk.toString() + "<EMAIL><" + a.getEmail() + ">"
 						+ junk.toString() + "<PHONE><" + a.getPhone() + ">"
 						+ junk.toString() + "<PASS><" + a.getPassword() + ">"
-						+ junk.toString() + "\n");
+						+ junk.toString(), key, keyIndex) + "\n");
 				}
 				
 				writer.flush();
@@ -184,9 +95,14 @@ public class FileUtil {
 			//	Try and find file and create writer
 			FileReader in = new FileReader(u.getFilePath());
 			BufferedReader reader = new BufferedReader(in);
+
+			//	Key for decryption
+			char[] key = u.getPassword().toCharArray();
+			//	Index of what part of the decrypt key has been reached
+			int[] keyIndex = new int[]{0};
 			
 			// Keep reading until no lines left
-			String line = reader.readLine();
+			String line = Encryptor.decrypt(reader.readLine(), key, keyIndex);
 			Website currentSite = null;
 			while (line != null) {
 				//	Type of info on line
@@ -255,7 +171,7 @@ public class FileUtil {
 				}
 				
 				//	Read next line
-				line = reader.readLine();
+				line = Encryptor.decrypt(reader.readLine(), key, keyIndex);
 			}
 		}
 		catch (IOException e) {
