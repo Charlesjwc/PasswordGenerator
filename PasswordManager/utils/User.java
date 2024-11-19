@@ -1,5 +1,6 @@
 package utils;
 
+import exceptions.*;
 import java.util.*;
 
 /**	User class for password manager. By default only has username and password.
@@ -20,9 +21,9 @@ public class User {
 	private Generator generator = new Generator();
 
 	/*	Constructor	*/
-	public User(String username, int password, String unhashedPassword) throws Exception {
+	public User(String username, int password, String unhashedPassword) throws DuplicateUsernameException {
 		if (usernames.contains(username)) {
-            throw new Exception("Username '" + username + "' already exists. Please use a different name.");
+            throw new DuplicateUsernameException(username);
         }
 
 		this.username = username;
@@ -34,9 +35,9 @@ public class User {
 		allUsers.add(this);
 	}
 
-    public User(String username, String unhashedPassword) throws Exception {
+    public User(String username, String unhashedPassword) throws DuplicateUsernameException {
 		if (usernames.contains(username)) {
-            throw new Exception("Username already exists. Please use a different name.");
+            throw new DuplicateUsernameException(username);
         }
 
 		this.username = username;

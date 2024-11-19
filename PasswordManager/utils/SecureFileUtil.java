@@ -1,12 +1,11 @@
 package utils;
 import utils.*;
+import exceptions.*;
 
 import java.util.*;
 import java.io.*;
 
 public class SecureFileUtil extends FileUtil{
-	//	Private constructor to prevent duplicates
-	private SecureFileUtil() {}
 	
 	/**	Initializes singleton object if it doesn't already exist	*/
 	public static void init() {
@@ -84,12 +83,10 @@ public class SecureFileUtil extends FileUtil{
 	/**	Read account info of a user onto their file
 	 * 	@param User to write the info of
 	 */
-	public void readUserInfo(User u) {
+	public void readUserInfo(User u) throws UserPassNullException, FileFormatException {
 		//	Only read file if user has entered unhashed password
 		if (u.getPassword() == null || u.getPassword().length() == 0) {
-			System.out.println("Could not read file for user '" + u.getUsername() + 
-						"', password not provided");
-			return;
+			throw new UserPassNullException(u.getUsername());
 		}
 		try {
 			//	Try and find file and create writer
@@ -117,6 +114,10 @@ public class SecureFileUtil extends FileUtil{
 				}
 				//	If account
 				else if (line.equals("<ACC>")) {
+					//	Check that this account belongs to a website
+					if (currentSite == null)
+						throw new UnexpectedInputException("<WEB>", "<ACC>");
+					
 					//	Remove prefix
 					line = line.substring(5);
 					
@@ -154,8 +155,7 @@ public class SecureFileUtil extends FileUtil{
 					//	If <PASS> not found, there was an error
 					if (!line.substring(line.indexOf('<') + 1,
 								line.indexOf('>')).equals("PASS")) {
-						System.out.println("ERROR: Password not found for user "
-							+ u.getUsername() + " on account for " + currentSite.getName());
+						throw new MissingPasswordException(u.getUsername(), currentSite.getName());
 					}
 					line = line.substring(line.indexOf('>') + 1);
 					pass = line.substring(line.indexOf('<') + 1, line.indexOf('>'));
@@ -174,8 +174,8 @@ public class SecureFileUtil extends FileUtil{
 				line = Encryptor.decrypt(reader.readLine(), key, keyIndex);
 			}
 		}
-		catch (IOException e) {
-			System.out.println("ERROR: Failed to read from '" + u.getFilePath() + "'");
+		catch (FileNotFoundException e) {
+			System.out.println("User file for '" + u.getUsername() + "' does not exist, no accounts read");
 		}
 	}
 }

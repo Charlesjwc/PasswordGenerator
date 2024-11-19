@@ -1,5 +1,6 @@
 package utils;
 import utils.*;
+import exceptions.*;
 
 import java.util.*;
 import java.io.*;
@@ -34,7 +35,7 @@ public class FileUtil {
 	public static FileUtil fileUtil = null;
 	
 	//	Private constructor to prevent duplicates
-	private FileUtil() {}
+	protected FileUtil() {}
 	
 	/**	Initializes singleton object if it doesn't already exist	*/
 	public static void init() {
@@ -47,7 +48,7 @@ public class FileUtil {
 	/**	Read user info from the file
 	 * 	@param	Empty list of users to add to
 	 */
-	public void readUsers(List<User> users) throws Exception {
+	public void readUsers(List<User> users) {
 		try {
 			//	Try to find file and create reader
 			FileReader in = new FileReader(USERS_PATH);
@@ -68,8 +69,15 @@ public class FileUtil {
 					System.out.println("ERROR: Unexpected # in '" + USERS_PATH + "'");
 				}
 				
-				//	Create new user and add to list, unhashedPass is empty for now
-				users.add(new User(username, hashPass, ""));
+				try {
+					//	Create new user and add to list, unhashedPass is empty for now
+					users.add(new User(username, hashPass, ""));
+				}
+				catch (DuplicateUsernameException e) {
+					//	Ignore for now, but in the future, maybe ask the user
+					//	whether they want to replace or ignore the new use
+					e.printStackTrace();
+				}
 				
 				//	Read next line
 				line = reader.readLine();
@@ -173,12 +181,10 @@ public class FileUtil {
 	/**	Read account info of a user onto their file
 	 * 	@param User to write the info of
 	 */
-	public void readUserInfo(User u) {
+	public void readUserInfo(User u) throws UserPassNullException, FileFormatException {
 		//	Only read file if user has entered unhashed password
 		if (u.getPassword() == null || u.getPassword().length() == 0) {
-			System.out.println("Could not read file for user '" + u.getUsername() + 
-						"', password not provided");
-			return;
+			throw new UserPassNullException(u.getUsername());
 		}
 		try {
 			//	Try and find file and create writer
@@ -201,6 +207,10 @@ public class FileUtil {
 				}
 				//	If account
 				else if (line.equals("<ACC>")) {
+					//	Check that this account belongs to a website
+					if (currentSite == null)
+						throw new UnexpectedInputException("<WEB>", "<ACC>");
+					
 					//	Remove prefix
 					line = line.substring(5);
 					
@@ -238,8 +248,7 @@ public class FileUtil {
 					//	If <PASS> not found, there was an error
 					if (!line.substring(line.indexOf('<') + 1,
 								line.indexOf('>')).equals("PASS")) {
-						System.out.println("ERROR: Password not found for user "
-							+ u.getUsername() + " on account for " + currentSite.getName());
+						throw new MissingPasswordException(u.getUsername(), currentSite.getName());
 					}
 					line = line.substring(line.indexOf('>') + 1);
 					pass = line.substring(line.indexOf('<') + 1, line.indexOf('>'));
@@ -258,8 +267,11 @@ public class FileUtil {
 				line = reader.readLine();
 			}
 		}
-		catch (IOException e) {
+		catch (FileNotFoundException e) {
 			System.out.println("ERROR: Failed to read from '" + u.getFilePath() + "'");
+		}
+		catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
