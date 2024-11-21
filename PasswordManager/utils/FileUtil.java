@@ -1,6 +1,6 @@
 package utils;
 import utils.*;
-import exceptions.*;
+import utils.exceptions.*;
 
 import java.util.*;
 import java.io.*;

@@ -1,6 +1,7 @@
 package utils;
 import utils.*;
-import exceptions.*;
+import utils.exceptions.*;
+
 
 import java.util.*;
 import java.io.*;
@@ -176,8 +177,10 @@ public class SecureFileUtil extends FileUtil{
 		}
 		catch (FileNotFoundException e) {
 			System.out.println("User file for '" + u.getUsername() + "' does not exist, no accounts read");
-		}
-	}
+		} catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 
 

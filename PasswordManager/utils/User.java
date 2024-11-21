@@ -1,6 +1,6 @@
 package utils;
 
-import exceptions.*;
+import utils.exceptions.*;
 import java.util.*;
 
 /**	User class for password manager. By default only has username and password.
