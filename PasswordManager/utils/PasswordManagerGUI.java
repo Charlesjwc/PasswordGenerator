@@ -26,11 +26,13 @@ public class PasswordManagerGUI {
         currentUser = null;
         FileUtil.init();
         FileUtil.fileUtil.readUsers(users);
+        /*
         try {
             addTestUsers();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        */
         runGUI();
     }
 
@@ -162,7 +164,7 @@ public class PasswordManagerGUI {
                 String passwordText = new String(password.getPassword());
 
                 for (User user : users) {
-                    if (user.getUsername().equals(usernameText) && user.getPassword().equals(passwordText)) {
+                    if (user.getUsername().equals(usernameText) && user.isPassword(passwordText)) {
                         currentUser = user;
                         JOptionPane.showMessageDialog(null, "Successfully logged in!");
                         userDashboard();
