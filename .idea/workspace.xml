@@ -5,14 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5fa8895d-49a6-4d29-a0ac-0df4890a5b22" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PasswordManager/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/PasswordManager/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PasswordManager/utils/Generator.java" beforeDir="false" afterPath="$PROJECT_DIR$/PasswordManager/utils/Generator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PasswordManager/utils/LoginScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/PasswordManager/utils/LoginScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PasswordManager/utils/PasswordManagerGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/PasswordManager/utils/PasswordManagerGUI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,8 +48,11 @@
   "keyToString": {
     "Application.Generator.executor": "Run",
     "Application.Main.executor": "Run",
+    "Application.PasswordManagerGUI (1).executor": "Run",
+    "Application.PasswordManagerGUI.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -49,21 +61,15 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Application.Main">
-    <configuration name="Generator" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="utils.Generator" />
+  <component name="RunManager" selected="Application.PasswordManagerGUI">
+    <configuration type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="jdk.tools.jmod.Main" />
       <module name="PasswordManager" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="utils.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -75,10 +81,42 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PasswordManagerGUI (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="utils.PasswordManagerGUI" />
+      <module name="PasswordManager" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="utils.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PasswordManagerGUI" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="utils.PasswordManagerGUI" />
+      <module name="PasswordManager" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="utils.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.PasswordManagerGUI" />
+      <item itemvalue="Application.PasswordManagerGUI (1)" />
+      <item itemvalue="Application.Main" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.PasswordManagerGUI" />
+        <item itemvalue="Application.PasswordManagerGUI (1)" />
         <item itemvalue="Application.Main" />
-        <item itemvalue="Application.Generator" />
       </list>
     </recent_temporary>
   </component>
@@ -101,6 +139,12 @@
       <workItem from="1731622456322" duration="3013000" />
       <workItem from="1731634410419" duration="85000" />
       <workItem from="1731650472951" duration="9935000" />
+      <workItem from="1731796813302" duration="835000" />
+      <workItem from="1731797654202" duration="15861000" />
+      <workItem from="1731998119282" duration="2867000" />
+      <workItem from="1732049001954" duration="10496000" />
+      <workItem from="1732151909146" duration="17846000" />
+      <workItem from="1732221360718" duration="26287000" />
     </task>
     <servers />
   </component>

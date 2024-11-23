@@ -1,7 +1,10 @@
 //	Import utils package including User, Website, Password, etc.
 import utils.*;
-
 import java.util.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
 
 /**
  * 	Main.java
@@ -14,126 +17,6 @@ import java.util.*;
  *
  * 	@since 23 October 2024
  */
-
-
-// // manually test, no need to enter the user info, default read and create users.
-//public class Main {
-//	//	List of users
-//	private List<User> users;
-//	private Scanner scanner;
-//
-//	//	Constructor
-//	public Main() {
-//		users = new ArrayList<>();
-//		scanner = new Scanner(System.in);
-//	}
-//
-//	public static void main (String[] args) throws Exception {
-//		//	Create and run instance
-//		Main m = new Main();
-//		m.run();
-//	}
-//
-//	/**	Runs the program	*/
-//	private void run() throws Exception {
-//		//	Initialize fileutil and read users
-//		System.out.println("Initializing FileUtil and reading existing users.");
-//		FileUtil.init();
-//		FileUtil.fileUtil.readUsers(users);
-//
-//		for (User u : users)
-//			FileUtil.fileUtil.readUserInfo(u);
-//		System.out.println();
-//
-//		// auto test, no need to enter the username and password.
-//		System.out.println("Adding test users.");
-//		addTestUsers();
-//
-//		System.out.println("\n========== USERS ===========");
-//		for (User u: users) {
-//			System.out.println("User: " + u.getUsername());
-//			for (Website website : u.getWebsites()) {
-//				System.out.println(" Website: " + website.getName());
-//				for (Account account : website.getAccounts()) {
-//					System.out.println("  Account: " + account.toString());
-//				}
-//			}
-//		}
-//
-//		System.out.println("\n========PASSWORD GENERATOR TEST ==========");
-//		testPasswordGenerator();
-//
-//		System.out.println("\nSaving all users.");
-//		saveAllUsers();
-//	}
-//
-//	private void save() {
-//		FileUtil.fileUtil.writeUsers(users);
-//	}
-//
-//	private void saveUser(User u) {
-//		FileUtil.fileUtil.writeUserInfo(u);
-//	}
-//
-//
-//	private void addTestUsers() throws Exception {
-//		//	Add users
-//		User charles = new User("Charles", "Password123456".hashCode(), "Password123456");
-//		users.add(charles);
-//		User christine = new User("Christine", "SuperSecure".hashCode(), "SuperSecure");
-//		users.add(christine);
-//		User yujia = new User("Yujia", "!@#$%^&*()".hashCode(), "!@#$%^&*()");
-//		users.add(yujia);
-//		User lei = new User("Lei", "null".hashCode(), "null");
-//		users.add(lei);
-//
-//		Website w1 = new Website("Canvas");
-//		Website w2 = new Website("Youtube");
-//		Website w3 = new Website("Spotify");
-//
-//		Account account1 = new Account(w1, "charles321", "myemail@gmail.com", "",
-//				"THISISASUPERLONGPASSWORDthatwillgoONFORAveryLOOOOOOOOONGtimeTOSTRESSTESTtheSystem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-//						+ "fgviwyvn97934t97nf9a9737qby2v73byt07fytv0nfyvn098yfn0vn3hrrefhvn734yvtn734yvtn4783yvtn3278ytvn08y7reghuisdhuigyw"
-//						+ "uhfoiuwehvgibuoiaweghuihbdipuvghuweupghpaweousdhvweuhfweuafhe9hfweufhwe98fhaew9ufhe0puswdhfuiwewbh09fgwe9afhgwe79gh"
-//						+ "awe8jhfopweifhopwehfpweohbgopuwe4hguoibh437yt34760th2ptuobuY&*TT&*T*GB#@7G)*gb08g38rbf8byuib2yub3bfiyuwegfGT^&*FIYv");
-//		Account account2 = new Account(w2, "", "", "", "WhatIfAllTheFieldsAreEmptyButThis");
-//		Account account3 = new Account(w2, "ADifferentAccount", "", "", "ButWithDifferentInfo");
-//
-//		w1.addAccount(account1);
-//		w2.addAccount(account2);
-//		w2.addAccount(account3);
-//
-//		charles.addWebsite(w1);
-//		christine.addWebsite(w2);
-//		yujia.addWebsite(w3);
-//
-//		w3.addAccount(new Account(w3, "A", "Duplicate", "Account", "ShouldWork"));
-//		w3.addAccount(new Account(w3, "A", "Duplicate", "Account", "ShouldWork"));
-//		w3.addAccount(new Account(w3, "A", "Duplicate", "Account", "ShouldWork"));
-//
-//		System.out.println("Test data added successfully.");
-//	}
-//
-//	private void testPasswordGenerator() {
-//		Generator generator = new Generator();
-//
-//		System.out.println("Testing auto generator.");
-//		String autoPassword = generator.autoGenerator();
-//		System.out.println(autoPassword);
-//
-//		System.out.println("manual generate a password");
-//		String manual_password = generator.manualGenerator();
-//		System.out.println(manual_password);
-//	}
-//
-//	private void saveAllUsers() {
-//		for (User u: users) {
-//			FileUtil.fileUtil.writeUserInfo(u);
-//		}
-//		FileUtil.fileUtil.writeUsers(users);
-//	}
-//}
-
 
 
 public class Main {
@@ -235,9 +118,9 @@ public class Main {
 		System.out.println("1. Login to the existing user, type 'exit' to return to the main menu.");
 		System.out.println("2. Create a new user");
 //		System.out.println("3. Delete a user");  todo, seems like we don't have a delete user feature
-		System.out.println("3. Exit");
+		System.out.println("0. Exit");
 
-		int choice = Prompt.getInt("Enter your choice: ");
+		int choice = Prompt.getInt("Enter your choice: ", 0, 3);
 		switch (choice) {
 			case 1:
 				System.out.println();
@@ -420,3 +303,10 @@ public class Main {
 	}
 
 }
+
+
+/*
+login user
+    website1  ->   acount1, acount2    auto   edit
+    website2  ->   acount1, acount2
+ */
