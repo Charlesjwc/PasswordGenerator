@@ -3,13 +3,16 @@ package utils;
 import utils.exceptions.DuplicateUsernameException;
 
 import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 
 public class PasswordManagerGUI {
@@ -283,21 +286,32 @@ public class PasswordManagerGUI {
         JPanel dashboardPanel = new JPanel(new BorderLayout());
         dashboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 15, 30));
 
-        // websites on the left side
+        // websites on the left side, read from the user info(not from a file) todo
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Websites");
-        DefaultMutableTreeNode facebookNode = new DefaultMutableTreeNode("Facebook");
-        facebookNode.add(new DefaultMutableTreeNode("fb admin"));
-        facebookNode.add(new DefaultMutableTreeNode("fb cat"));
+        Map<String, DefaultMutableTreeNode> websiteNodes = new HashMap<>();
+        for (Website website : currentUser.getWebsites()) {
+            DefaultMutableTreeNode websiteNode = new DefaultMutableTreeNode(website.getName());
+            for (Account account : website.getAccounts()) {
+                websiteNode.add(new DefaultMutableTreeNode(account.getUsername()));
+            }
+            root.add(websiteNode);
+            websiteNodes.put(website.getName(), websiteNode);
+        }
 
-        DefaultMutableTreeNode twitterNode = new DefaultMutableTreeNode("Twitter");
-        twitterNode.add(new DefaultMutableTreeNode("tw admin"));
-        twitterNode.add(new DefaultMutableTreeNode("tw cat"));
+//        // existing data -> for testing
+//        DefaultMutableTreeNode facebookNode = new DefaultMutableTreeNode("Facebook");
+//        facebookNode.add(new DefaultMutableTreeNode("fb admin"));
+//        facebookNode.add(new DefaultMutableTreeNode("fb cat"));
+//
+//        DefaultMutableTreeNode twitterNode = new DefaultMutableTreeNode("Twitter");
+//        twitterNode.add(new DefaultMutableTreeNode("tw admin"));
+//        twitterNode.add(new DefaultMutableTreeNode("tw cat"));
+//
+//        root.add(facebookNode);
+//        root.add(twitterNode);
 
-        root.add(facebookNode);
-        root.add(twitterNode);
-
-        JTree webistes = new JTree(root);
-        JScrollPane scrollPane = new JScrollPane(webistes);
+        JTree websites = new JTree(root);
+        JScrollPane scrollPane = new JScrollPane(websites);
         scrollPane.setPreferredSize(new Dimension(200, 0));
         dashboardPanel.add(scrollPane, BorderLayout.WEST);
 
@@ -366,32 +380,226 @@ public class PasswordManagerGUI {
         bottomPanel.add(logoutButton);
 
         rightPanel.add(bottomPanel, BorderLayout.SOUTH);
-
         dashboardPanel.add(rightPanel, BorderLayout.CENTER);
 
+        websites.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) websites.getLastSelectedPathComponent();
+                if (selectedNode == null || selectedNode.isRoot()) {
+                    return;
+                }
 
-//        addWebsiteButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                addWebsite();
-//            }
-//        });
-//
-//        deleteWebsiteButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                deleteWebsite();
-//            }
-//        });
-//
-//        logoutButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                currentUser = null;
-//                loginScreen();
-//            }
-//        });
-//
+                DefaultMutableTreeNode parent = (DefaultMutableTreeNode) selectedNode.getParent();
+                if (parent == null || parent.isRoot()) {
+                    return;
+                }
+
+                String selectedWebsiteName = parent.getUserObject().toString();
+                String selectedUserName = selectedNode.getUserObject().toString();
+
+                for (Website website : currentUser.getWebsites()) {
+                    if (website.getName().equals(selectedWebsiteName)) {
+                        for (Account account : website.getAccounts()) {
+                            if (account.getUsername().equals(selectedUserName)) {
+                                username.setText(account.getUsername());
+                                password.setText(account.getPassword());
+                                email.setText(account.getEmail());
+                                phone.setText(account.getPhone());
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+
+        addAccountButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                username.setText("");
+                password.setText("");
+                email.setText("");
+                phone.setText("");
+
+                username.setEditable(true);
+                password.setEditable(true);
+                email.setEditable(true);
+                phone.setEditable(true);
+            }
+        });
+
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                username.setEditable(true);
+                password.setEditable(true);
+                email.setEditable(true);
+                phone.setEditable(true);
+            }
+        });
+
+        saveAccountButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String savedUsername = username.getText();
+                String savedPassword = password.getText();
+                String savedEmail = email.getText();
+                String savedPhone = phone.getText();
+
+                // username and password is a must, email and phone are optional.
+                if (savedUsername.isEmpty() || savedPassword.isEmpty()) {
+                    JOptionPane.showMessageDialog(dashboardFrame, "Please fill in username and password", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // get the selected node info
+                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) websites.getLastSelectedPathComponent();
+                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) (selectedNode != null ? selectedNode.getParent() : null);
+                String seletedWebsiteName = parentNode != null ? parentNode.getUserObject().toString() : null;
+
+                if (seletedWebsiteName == null) {
+                    JOptionPane.showMessageDialog(dashboardFrame, "Please select a website", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // get website list from user -> public List<Website> getWebsites()
+                Website websiteNode = null;
+                for (Website website : currentUser.getWebsites()) {
+                    if (website.getName().equals(seletedWebsiteName)) {
+                        websiteNode = website;
+                        break;
+                    }
+                }
+
+
+                if (websiteNode == null) {
+                    JOptionPane.showMessageDialog(dashboardFrame, "Please select a website", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                boolean isAccountExist = false;
+                for (Account account : websiteNode.getAccounts()) {
+                    if (account.getUsername().equals(savedUsername)) {
+                        JOptionPane.showMessageDialog(dashboardFrame, "Account already exists, you are modifying your account");
+                        account.setPassword(savedPassword);
+                        account.setEmail(savedEmail);
+                        account.setPhone(savedPhone);
+                        isAccountExist = true;
+                        break;
+                    }
+                }
+
+                if (!isAccountExist) {
+                    Account newAccount = new Account(websiteNode, savedUsername, savedEmail, savedPhone, savedPassword);
+                    websiteNode.addAccount(newAccount);
+                    DefaultMutableTreeNode newAccountNode = new DefaultMutableTreeNode(savedUsername);
+                    parentNode.add(newAccountNode);
+                }
+
+                ((DefaultTreeModel) websites.getModel()).reload();
+                FileUtil.fileUtil.writeUserInfo(currentUser);
+
+                JOptionPane.showMessageDialog(dashboardFrame, "Account saved!");
+            }
+        });
+
+        deleteAccountButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) websites.getLastSelectedPathComponent();
+                if (selectedNode == null || selectedNode.isRoot()) {
+                    JOptionPane.showMessageDialog(dashboardFrame, "Please select a website", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) selectedNode.getParent();
+                if (parentNode == null || parentNode.isRoot()) {
+                    JOptionPane.showMessageDialog(dashboardFrame, "Please selete an account under the websites", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(dashboardFrame, "Are you sure you want to delete this account?",
+                        "Confirm", JOptionPane.YES_NO_OPTION);
+                if (confirm != JOptionPane.YES_OPTION) {
+                    return;
+                }
+
+                String selectedWebsiteName = parentNode.getUserObject().toString();
+                Website websiteNode = null;
+                for (Website website : currentUser.getWebsites()) {
+                    if (website.getName().equals(selectedWebsiteName)) {
+                        websiteNode = website;
+                        break;
+                    }
+                }
+
+                if (websiteNode == null) {
+                    JOptionPane.showMessageDialog(dashboardFrame, "Website not found", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                String selectedUsername = selectedNode.getUserObject().toString();
+                Account accountToDelete = null;
+                for (Account account : websiteNode.getAccounts()) {
+                    if (account.getUsername().equals(selectedUsername)) {
+                        accountToDelete = account;
+                        break;
+                    }
+                }
+
+                if (accountToDelete == null) {
+                    JOptionPane.showMessageDialog(dashboardFrame, "Account not found", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                websiteNode.getAccounts().remove(accountToDelete);
+                parentNode.remove(selectedNode);
+
+                ((DefaultTreeModel) websites.getModel()).reload();
+                FileUtil.fileUtil.writeUserInfo(currentUser);
+
+                JOptionPane.showMessageDialog(dashboardFrame, "Account deleted!");
+            }
+
+            // keep the original level expanded paths
+            private TreePath[] saveExpandedPaths(JTree tree) {
+                int rowCount = tree.getRowCount();
+                TreePath[] paths = new TreePath[rowCount];
+                int index = 0;
+                for (int i = 0; i < rowCount; i++) {
+                    if (tree.isExpanded(i)) {
+                        paths[index++] = tree.getPathForRow(i);
+                    }
+                }
+                return Arrays.copyOf(paths, index);
+            }
+
+            private void restoreExpandedPath(JTree tree, TreePath[] paths) {
+                for (TreePath path: paths) {
+                    tree.expandPath(path);
+                }
+            }
+        });
+
+        generatePasswordButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Generator generator = new Generator();
+
+                String generatedPassword = generator.autoGenerator();
+                password.setText(generatedPassword);
+            }
+        });
+
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dashboardFrame.dispose();
+                runGUI();
+            }
+        });
 
         dashboardFrame.add(dashboardPanel);
         dashboardFrame.setVisible(true);
