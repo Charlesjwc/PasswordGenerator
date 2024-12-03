@@ -8,7 +8,7 @@ import java.io.*;
 public class FileUtil {
 	//	Filepath to info on accounts
 	public static final String USERS_PATH = "files/userInfos.txt";
-	
+
 	public static final int TRASH_MAX = 10;
 	
 	/*	File contains passwords in the following form:
@@ -97,6 +97,11 @@ public class FileUtil {
 		//	Let user know that file is saving
 		System.out.println("Saving to " + users.size() + " users to file");
 		try {
+			File file = new File(USERS_PATH);
+			File parentDir = file.getParentFile();
+			if (parentDir != null && !parentDir.exists()) {
+				parentDir.mkdirs();
+			}
 			//	Try and find file and create writer
 			FileWriter out = new FileWriter(USERS_PATH);
 			BufferedWriter writer = new BufferedWriter(out);
@@ -125,6 +130,11 @@ public class FileUtil {
 		//	Let user know that file is saving
 		System.out.println("Saving to " + u.getUsername() + "'s info to file");
 		try {
+			File file = new File(u.getFilePath());
+			File parentDir = file.getParentFile();
+			if (parentDir != null && !parentDir.exists()) {
+				parentDir.mkdirs();
+			}
 			//	Try and find file and create writer
 			FileWriter out = new FileWriter(u.getFilePath());
 			BufferedWriter writer = new BufferedWriter(out);

@@ -49,6 +49,10 @@ public class Account {
         this.phone = phone;
     }
 
+    public void setWebsite(Website website) {
+        this.website = website;
+    }
+
 	/**	Set/change usernamne
 	 * 	@param	newUserName		username to change to
 	 */
@@ -71,6 +75,10 @@ public class Account {
 
     public String getPassword() {
         return password;
+    }
+
+    public Website getWebsite() {
+        return website;
     }
 	
 	public String toString() {
