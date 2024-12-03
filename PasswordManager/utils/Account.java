@@ -36,6 +36,19 @@ public class Account {
     public void setManualPassword(){
         this.password = generator.manualGenerator();
     }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
 	/**	Set/change usernamne
 	 * 	@param	newUserName		username to change to
 	 */
