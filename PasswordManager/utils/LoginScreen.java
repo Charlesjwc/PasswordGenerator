@@ -100,8 +100,13 @@ public boolean checkUser(List<User> userList){
 				JOptionPane.showMessageDialog(frame, "Username already exists, please enter proper password, or a new unique username.");
 
 			}else if (userText.getText() != null && passwordText.getPassword() != null){
-				User newUser = new User(userText.getText(), passwordText.hashCode(), passwordText.getPassword().toString());
-				FileUtil.fileUtil.writeUserInfo(newUser);
+                User newUser = null;
+                try {
+                    newUser = new User(userText.getText(), passwordText.hashCode(), passwordText.getPassword().toString());
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                FileUtil.fileUtil.writeUserInfo(newUser);
 				JOptionPane.showMessageDialog(frame, "User Successfully Created.");
 
 			}else{
