@@ -12,20 +12,26 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.*;
 import java.io.File;
 import java.util.*;
 import java.util.List;
 
 
-public class PasswordManagerGUI {
+public class PasswordManagerGUI implements MouseListener{
     private JFrame frame;
     private JPanel panel;
     private List<User> users;
     private User currentUser;
+    private boolean isEditing = false;
+    private boolean isSaved = true;
+    private JTextField websitename;
+    private JTextField username;
+    private JTextField password;
+    private JTextField email;
+    private JTextField phone;
+    private DefaultMutableTreeNode root;
 
     public PasswordManagerGUI() {
 
@@ -315,7 +321,7 @@ public class PasswordManagerGUI {
         dashboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 15, 30));
 
         // websites on the left side, read from the user info(not from a file) todo
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Websites");
+        root = new DefaultMutableTreeNode("Websites");
         Map<String, DefaultMutableTreeNode> websiteNodes = new HashMap<>();
         for (Website website : currentUser.getWebsites()) {
             DefaultMutableTreeNode websiteNode = new DefaultMutableTreeNode(website.getName());
@@ -369,36 +375,36 @@ public class PasswordManagerGUI {
 
         // website name
         JLabel websitenameLabel = new JLabel("Website: ");
-        JTextField websitename = new JTextField();
-        websitename.setEditable(false);
+        websitename = new JTextField();
+        websitename.setEnabled(false);
         infoPanel.add(websitenameLabel);
         infoPanel.add(websitename);
 
         // username
         JLabel usernameLabel = new JLabel("Username: ");
-        JTextField username = new JTextField();
-        username.setEditable(false);
+        username = new JTextField();
+        username.setEnabled(false);
         infoPanel.add(usernameLabel);
         infoPanel.add(username);
 
         // password
         JLabel passwordLabel = new JLabel("Password: ");
-        JTextField password = new JTextField();
-        password.setEditable(false);
+        password = new JTextField();
+        password.setEnabled(false);
         infoPanel.add(passwordLabel);
         infoPanel.add(password);
 
         // email
         JLabel emailLabel = new JLabel("Email: ");
-        JTextField email = new JTextField();
-        email.setEditable(false);
+        email = new JTextField();
+        email.setEnabled(false);
         infoPanel.add(emailLabel);
         infoPanel.add(email);
 
         // phone
         JLabel phoneLabel = new JLabel("Phone: ");
-        JTextField phone = new JTextField();
-        phone.setEditable(false);
+        phone = new JTextField();
+        phone.setEnabled(false);
         infoPanel.add(phoneLabel);
         infoPanel.add(phone);
 
@@ -408,14 +414,21 @@ public class PasswordManagerGUI {
         JPanel bottomPanel = new JPanel(new GridLayout(3, 1, 10, 2));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 7, 5));
 
+        JButton editAccountButton = new JButton("Edit");
         JButton saveAccountButton = new JButton("Save");
         JButton generatePasswordButton = new JButton("Auto Generate Password");
         JButton logoutButton = new JButton("Logout");
+
+        saveAccountButton.setVisible(false);
+        editAccountButton.setVisible(false);
+        generatePasswordButton.setEnabled(false);
 
         generatePasswordButton.setPreferredSize(new Dimension(200, 40));
         logoutButton.setPreferredSize(new Dimension(200, 40));
         saveAccountButton.setPreferredSize(new Dimension(200, 35));
 
+
+        bottomPanel.add(editAccountButton);
         bottomPanel.add(saveAccountButton);
         bottomPanel.add(generatePasswordButton);
         bottomPanel.add(logoutButton);
@@ -425,165 +438,176 @@ public class PasswordManagerGUI {
 
         websites.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) websites.getLastSelectedPathComponent();
+            public void valueChanged(TreeSelectionEvent e) { DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) websites.getLastSelectedPathComponent();
+
+                // If no node or root node is selected, hide the edit button and clear fields
                 if (selectedNode == null || selectedNode.isRoot()) {
-                    websitename.setText("");
-                    username.setText("");
-                    password.setText("");
-                    email.setText("");
-                    phone.setText("");
+                    editAccountButton.setVisible(false);  // Hide edit button
+                    clearFields();  // Clear all fields
                     return;
                 }
 
+                // Check if the selected node is a website or an account
                 if (selectedNode.getParent() == root) {
-                    websitename.setText(selectedNode.getUserObject().toString());
-                    username.setText("");
-                    password.setText("");
-                    email.setText("");
-                    phone.setText("");
-
-                    websitename.setEditable(true);
-                    username.setEditable(true);
-                    password.setEditable(true);
-                    email.setEditable(true);
-                    phone.setEditable(true);
+                    // Website node selected, hide the edit button
+                    editAccountButton.setVisible(false);
+                    clearFieldsExceptWebsite();  // Only clear fields except website name
                 } else {
-                    DefaultMutableTreeNode parent = (DefaultMutableTreeNode) selectedNode.getParent();
-                    websitename.setText(parent.getUserObject().toString());
-
-                    String selectedUserName = selectedNode.getUserObject().toString();
-                    for (Website website : currentUser.getWebsites()) {
-                        if (website.getName().equals(parent.getUserObject().toString())) {
-                            for (Account account : website.getAccounts()) {
-                                if (account.getUsername().equals(selectedUserName)) {
-                                    username.setText(account.getUsername());
-                                    password.setText(account.getPassword());
-                                    email.setText(account.getEmail());
-                                    phone.setText(account.getPhone());
-
-                                    websitename.setEditable(true);
-                                    username.setEditable(true);
-                                    password.setEditable(true);
-                                    email.setEditable(true);
-                                    phone.setEditable(true);
-
-                                    return;
-                                }
-                            }
-                        }
-                    }
+                    // Account node selected, show the edit button
+                    editAccountButton.setVisible(true);
+                    populateFieldsFromSelection(selectedNode);  // Populate fields for account
                 }
             }
         });
 
+
+
         addTreeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) websites.getLastSelectedPathComponent();
-                if (selectedNode != null && selectedNode.getParent() == root) {
-                    websitename.setText(selectedNode.getUserObject().toString());
-                } else {
-                    websitename.setText("");
+                // Prompt the user to enter a website name
+                String websiteName = JOptionPane.showInputDialog(dashboardFrame,
+                        "Enter the website name:",
+                        "Add Website or Account",
+                        JOptionPane.PLAIN_MESSAGE);
+
+                // If the user cancels or enters no input, exit the action
+                if (websiteName == null || websiteName.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(dashboardFrame,
+                            "Website name cannot be empty.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
+                websiteName = websiteName.trim(); // Trim whitespace
+
+                // Populate the website text field
+                websitename.setText(websiteName);
+
+                // Enable editing for all text fields
+                enableFields(true);
+
+                // Reset other fields
                 username.setText("");
                 password.setText("");
                 email.setText("");
                 phone.setText("");
 
-                websitename.setEditable(true);
-                username.setEditable(true);
-                password.setEditable(true);
-                email.setEditable(true);
-                phone.setEditable(true);
+                // Update button states
+                saveAccountButton.setVisible(true);
+                generatePasswordButton.setEnabled(true);
+                editAccountButton.setVisible(false); // Hide edit button
+
+                // Save the website name temporarily but don't update the tree
+                JOptionPane.showMessageDialog(dashboardFrame,
+                        "Enter account details and click 'Save' to add the website and account.",
+                        "Info",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
-//        editButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) websites.getLastSelectedPathComponent();
-//                if (selectedNode != null) {
-//                    websitename.setEditable(true);
-//                    username.setEditable(true);
-//                    password.setEditable(true);
-//                    email.setEditable(true);
-//                    phone.setEditable(true);
-//                } else {
-//                    JOptionPane.showMessageDialog(dashboardFrame, "Please select a website or an account to edit.", "Error", JOptionPane.ERROR_MESSAGE);
-//                }
-//            }
-//        });
+
+
+        editAccountButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                isEditing = true; // Flag to indicate editing mode
+                isSaved = false; // Changes are not yet saved
+                enableFields(true); // Enable the text fields
+                generatePasswordButton.setEnabled(true);
+                saveAccountButton.setVisible(true);
+                editAccountButton.setVisible(false);
+            }
+        });
 
         saveAccountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Gather input data from fields
                 String savedWebsiteName = websitename.getText().trim();
                 String savedUsername = username.getText().trim();
                 String savedPassword = password.getText().trim();
                 String savedEmail = email.getText().trim();
                 String savedPhone = phone.getText().trim();
 
-                // website, username and password is a must, email and phone are optional.
-                if (savedUsername.isEmpty() || savedPassword.isEmpty()) {
-                    JOptionPane.showMessageDialog(dashboardFrame, "Please fill in username and password", "Error", JOptionPane.ERROR_MESSAGE);
+                // Validate required fields
+                if (savedWebsiteName.isEmpty() || savedUsername.isEmpty() || savedPassword.isEmpty()) {
+                    JOptionPane.showMessageDialog(dashboardFrame,
+                            "Please fill in all required fields (Website, Username, Password).",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                if (savedWebsiteName.isEmpty()) {
-                    JOptionPane.showMessageDialog(dashboardFrame, "Please fill in website name", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+                DefaultMutableTreeNode websiteNode = null;
+                boolean isExistingWebsite = false;
 
-                // get website list from user -> public List<Website> getWebsites()
-                Website websiteNode = null;
+                // Check if the website exists in the user's data
                 for (Website website : currentUser.getWebsites()) {
                     if (website.getName().equals(savedWebsiteName)) {
-                        websiteNode = website;
+                        websiteNode = findWebsiteNode(savedWebsiteName); // Find the node in the tree
+                        isExistingWebsite = true;
+
+                        // Check if the account already exists under this website
+                        boolean isExistingAccount = false;
+                        for (Account account : website.getAccounts()) {
+                            if (account.getUsername().equals(savedUsername)) {
+                                // Update existing account details
+                                account.setPassword(savedPassword);
+                                account.setEmail(savedEmail);
+                                account.setPhone(savedPhone);
+                                JOptionPane.showMessageDialog(dashboardFrame,
+                                        "Account details updated successfully.",
+                                        "Success", JOptionPane.INFORMATION_MESSAGE);
+                                isExistingAccount = true;
+                                break;
+                            }
+                        }
+
+                        // If the account doesn't exist, create a new account
+                        if (!isExistingAccount) {
+                            Account newAccount = new Account(website, savedUsername, savedEmail, savedPhone, savedPassword);
+                            website.addAccount(newAccount);
+
+                            // Add the new account to the tree
+                            if (websiteNode != null) {
+                                websiteNode.add(new DefaultMutableTreeNode(savedUsername));
+                            }
+                            JOptionPane.showMessageDialog(dashboardFrame,
+                                    "New account added under the website.",
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                        }
                         break;
                     }
                 }
 
-                if (websiteNode == null) {
-                    websiteNode = new Website(savedWebsiteName);
-                    currentUser.addWebsite(websiteNode);
+                // If the website doesn't exist, create a new website and account
+                if (!isExistingWebsite) {
+                    Website newWebsite = new Website(savedWebsiteName);
+                    Account newAccount = new Account(newWebsite, savedUsername, savedEmail, savedPhone, savedPassword);
+                    newWebsite.addAccount(newAccount);
+                    currentUser.addWebsite(newWebsite);
 
-                    DefaultMutableTreeNode root = (DefaultMutableTreeNode) websites.getModel().getRoot();
-                    DefaultMutableTreeNode newWebsiteNode = new DefaultMutableTreeNode(savedWebsiteName);
-                    root.add(newWebsiteNode);
+                    // Add the new website and account to the tree
+                    websiteNode = new DefaultMutableTreeNode(savedWebsiteName);
+                    root.add(websiteNode);
+                    websiteNode.add(new DefaultMutableTreeNode(savedUsername));
+
+                    JOptionPane.showMessageDialog(dashboardFrame,
+                            "New website and account created successfully.",
+                            "Success", JOptionPane.INFORMATION_MESSAGE);
                 }
 
-                boolean isAccountExist = false;
-                for (Account account : websiteNode.getAccounts()) {
-                    if (account.getUsername().equals(savedUsername)) {
-                        JOptionPane.showMessageDialog(dashboardFrame, "Account already exists, you are modifying your account");
-                        account.setPassword(savedPassword);
-                        account.setEmail(savedEmail);
-                        account.setPhone(savedPhone);
-                        isAccountExist = true;
-                        JOptionPane.showMessageDialog(dashboardFrame, "Account successfully updated");
-                        break;
-                    }
-                }
-
-                if (!isAccountExist) {
-                    Account newAccount = new Account(websiteNode, savedUsername, savedEmail, savedPhone, savedPassword);
-                    websiteNode.addAccount(newAccount);
-
-                    DefaultMutableTreeNode websiteTreeNode = findWebsiteNode(savedWebsiteName);
-                    if (websiteTreeNode != null) {
-                        websiteTreeNode.add(new DefaultMutableTreeNode(savedUsername));
-                    }
-                }
-
+                // Reload the tree model to reflect the changes
                 ((DefaultTreeModel) websites.getModel()).reload();
+
+                // Save the updated user data to file
                 FileUtil.fileUtil.writeUserInfo(currentUser);
 
-                JOptionPane.showMessageDialog(dashboardFrame, "Account saved!");
+                // Reset UI state
+                completeSave();
             }
+
             private DefaultMutableTreeNode findWebsiteNode(String websiteName) {
-                DefaultMutableTreeNode root = (DefaultMutableTreeNode) websites.getModel().getRoot();
                 Enumeration<TreeNode> children = root.children();
                 while (children.hasMoreElements()) {
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) children.nextElement();
@@ -593,7 +617,19 @@ public class PasswordManagerGUI {
                 }
                 return null;
             }
+
+            private void completeSave() {
+                isEditing = false;
+                isSaved = true;
+                enableFields(false); // Disable editing fields
+                editAccountButton.setVisible(false);
+                saveAccountButton.setVisible(false);
+                generatePasswordButton.setEnabled(false);
+            }
         });
+
+
+
 
         deleteTreeButton.addActionListener(new ActionListener() {
             @Override
@@ -603,6 +639,11 @@ public class PasswordManagerGUI {
                     JOptionPane.showMessageDialog(dashboardFrame, "Please select a website or an account to delete",
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return;
+                }
+                if (selectedNode.getParent() == root) {
+                    clearFieldsExceptWebsite(); // Clear only non-website fields
+                } else {
+                    populateFieldsFromSelection(selectedNode); // Populate fields for accounts
                 }
 
                 int confirm = JOptionPane.showConfirmDialog(dashboardFrame, "Are you sure you want to delete this account?",
@@ -664,6 +705,61 @@ public class PasswordManagerGUI {
             }
         });
 
+        username.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(username.getText() != null && username.getText().length() > 0) {
+                StringSelection selection = new StringSelection(username.getText());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                JOptionPane.showMessageDialog( null, "Username copied to clipboard: " + username.getText());
+                }
+            }
+
+        });
+        password.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (password.getText() != null && password.getText().length() > 0) {
+                    StringSelection selection = new StringSelection(password.getText());
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                    JOptionPane.showMessageDialog(null, "Password copied to clipboard: " + password.getText());
+
+                }
+            }
+        });
+        websitename.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (websitename.getText() != null && websitename.getText().length() > 0) {
+                    StringSelection selection = new StringSelection(websitename.getText());
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                    JOptionPane.showMessageDialog(null, "Website name copied to clipboard: " + websitename.getText());
+
+                }
+            }
+        });
+        email.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (email.getText() != null && email.getText().length() > 0) {
+                    StringSelection selection = new StringSelection(email.getText());
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                    JOptionPane.showMessageDialog(null, "Email copied to clipboard: " + email.getText());
+                }
+            }
+        });
+        phone.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (phone.getText() != null && phone.getText().length() > 0) {
+                StringSelection selection = new StringSelection(phone.getText());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                JOptionPane.showMessageDialog(null, "Phone copied to clipboard: " + phone.getText());
+                }
+            }
+        });
+
+
         generatePasswordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -687,6 +783,99 @@ public class PasswordManagerGUI {
         dashboardFrame.setVisible(true);
         frame.dispose();
     }
+
+    private void enableFields(boolean enable) {
+        websitename.setEditable(enable);
+        websitename.setEnabled(enable);
+        username.setEditable(enable);
+        username.setEnabled(enable);
+        password.setEditable(enable);
+        password.setEnabled(enable);
+        email.setEditable(enable);
+        email.setEnabled(enable);
+        phone.setEditable(enable);
+        phone.setEnabled(enable);
+    }
+
+    private void populateFields(Account account) {
+        username.setText(account.getUsername());
+        password.setText(account.getPassword());
+        email.setText(account.getEmail());
+        phone.setText(account.getPhone());
+    }
+
+    private void clearFields() {
+        websitename.setText("");
+        username.setText("");
+        password.setText("");
+        email.setText("");
+        phone.setText("");
+    }
+    private void clearFieldsExceptWebsite() {
+        username.setText("");
+        password.setText("");
+        email.setText("");
+        phone.setText("");
+    }
+
+    private void populateFieldsFromSelection(DefaultMutableTreeNode selectedNode) {
+        if (selectedNode.getParent() == root) {
+            websitename.setText(selectedNode.getUserObject().toString());
+            clearFieldsExceptWebsite();
+        } else {
+            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) selectedNode.getParent();
+            websitename.setText(parent.getUserObject().toString());
+
+            String selectedUsername = selectedNode.getUserObject().toString();
+            for (Website website : currentUser.getWebsites()) {
+                if (website.getName().equals(parent.getUserObject().toString())) {
+                    for (Account account : website.getAccounts()) {
+                        if (account.getUsername().equals(selectedUsername)) {
+                            populateFields(account);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getSource() ==  username) {
+            StringSelection selection = new StringSelection(username.getText());
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+            JOptionPane.showMessageDialog( null, "Username copied to clipboard: " + username);
+        }
+        if (e.getSource() == password) {
+            StringSelection selection = new StringSelection(password.getText());
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+            JOptionPane.showMessageDialog(null, "Password copied to clipboard: " + password);
+
+        }
+    }
+
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+
 
     private void addTestUsers() throws Exception {
         User user1 = new User("admin", "1234");
@@ -719,8 +908,6 @@ public class PasswordManagerGUI {
         FileUtil.fileUtil.writeUsers(users);
     }
 
-//    public static void main(String[] args) {
-//        new PasswordManagerGUI();
-//    }
+
 
 }

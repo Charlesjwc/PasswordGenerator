@@ -139,7 +139,8 @@ public class LoggedInView extends JFrame implements ListSelectionListener, Actio
         if (!e.getValueIsAdjusting()) {
             // Only handle final selection change
             // Get selected account name
-            String selectedAccount = accountsList.getSelectedValue();            if (selectedAccount != null) {
+            String selectedAccount = accountsList.getSelectedValue();
+            if (selectedAccount != null) {
                 // Dummy data for account info based on the selected account
                 // You can replace this with actual account data from a database or file
                 accountUserNameTextField.setText(selectedAccount + "_user");

@@ -1,3 +1,4 @@
+import utils.LoggedInView;
 import utils.PasswordManagerGUI;
 
 public class Main {
