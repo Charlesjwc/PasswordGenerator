@@ -1,0 +1,6 @@
+<WEB>######<Canvas>######
+<ACC>##########<USER><Admin>##########<EMAIL><admin@gmail.com>##########<PHONE><>##########<PASS><1234>##########
+<WEB>#######<Youtube>#######
+<ACC>########<USER><Admin>########<EMAIL><admin@gmail.com>########<PHONE><>########<PASS><1234>########
+<WEB>##<Spotify>##
+<ACC>##########<USER><Admin>##########<EMAIL><admin@gmail.com>##########<PHONE><>##########<PASS><1234>##########
