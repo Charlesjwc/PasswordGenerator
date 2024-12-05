@@ -507,12 +507,7 @@ public class PasswordManagerGUI implements MouseListener{
             }
         });
 
-//        saveAccountButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                TreePath[] expandedPaths = saveExpandedPaths(websites);
-//            }
-//        });
+
 
         editAccountButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -606,7 +601,6 @@ public class PasswordManagerGUI implements MouseListener{
 
                 // Reload the tree model to reflect the changes
                 ((DefaultTreeModel) websites.getModel()).reload();
-
                 restoreExpandedPath(websites, expandedPaths);
 
                 // Save the updated user data to file
@@ -636,7 +630,6 @@ public class PasswordManagerGUI implements MouseListener{
                 generatePasswordButton.setEnabled(false);
             }
         });
-
 
         deleteTreeButton.addActionListener(new ActionListener() {
             @Override
@@ -688,8 +681,8 @@ public class PasswordManagerGUI implements MouseListener{
                     }
 
                     ((DefaultTreeModel) websites.getModel()).reload();
-
                     restoreExpandedPath(websites, expandedPaths);
+
                     FileUtil.fileUtil.writeUserInfo(currentUser);
 
                     JOptionPane.showMessageDialog(dashboardFrame, "Account deleted!");
@@ -701,9 +694,9 @@ public class PasswordManagerGUI implements MouseListener{
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(username.getText() != null && username.getText().length() > 0) {
-                StringSelection selection = new StringSelection(username.getText());
-                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-                JOptionPane.showMessageDialog( null, "Username copied to clipboard: " + username.getText());
+                    StringSelection selection = new StringSelection(username.getText());
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                    JOptionPane.showMessageDialog( null, "Username copied to clipboard: " + username.getText());
                 }
             }
 
@@ -744,9 +737,9 @@ public class PasswordManagerGUI implements MouseListener{
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (phone.getText() != null && phone.getText().length() > 0) {
-                StringSelection selection = new StringSelection(phone.getText());
-                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-                JOptionPane.showMessageDialog(null, "Phone copied to clipboard: " + phone.getText());
+                    StringSelection selection = new StringSelection(phone.getText());
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                    JOptionPane.showMessageDialog(null, "Phone copied to clipboard: " + phone.getText());
                 }
             }
         });
@@ -831,7 +824,6 @@ public class PasswordManagerGUI implements MouseListener{
             }
         }
     }
-
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() ==  username) {
@@ -867,6 +859,7 @@ public class PasswordManagerGUI implements MouseListener{
     public void mouseExited(MouseEvent e) {
 
     }
+
 
 
     private void addTestUsers() throws Exception {
@@ -918,9 +911,5 @@ public class PasswordManagerGUI implements MouseListener{
             tree.expandPath(path);
         }
     }
-
-//    public static void main(String[] args) {
-//        new PasswordManagerGUI();
-//    }
 
 }
